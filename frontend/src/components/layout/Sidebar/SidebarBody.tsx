@@ -7,6 +7,8 @@ import PinnedChannels from './PinnedChannels'
 import React from 'react'
 import { BiMessageAltDetail } from 'react-icons/bi'
 import { LuBookmark } from 'react-icons/lu'
+import { MdSportsGymnastics } from "react-icons/md";
+
 
 export const SidebarBody = () => {
 
@@ -26,6 +28,11 @@ export const SidebarBody = () => {
                         label='Saved'
                         icon={<LuBookmark className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Saved Message' />
+                        <SidebarItemForPage
+                        to={'workout'}
+                        label='Workout'
+                        icon={<MdSportsGymnastics className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='Workout' />
                     <PinnedChannels unread_count={unread_count?.message} />
                 </Flex>
                 <ChannelList unread_count={unread_count?.message} />
