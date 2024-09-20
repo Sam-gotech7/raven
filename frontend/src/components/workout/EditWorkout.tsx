@@ -87,13 +87,6 @@ const CreateWorkout = () => {
         setExerciseList(updatedExerciseList);
     };
 
-    const SubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();  
-        console.log(workoutForm);
-        console.log(exerciseList);
-    };
-    
-
     return (
         <>
             <PageHeader>
@@ -107,7 +100,7 @@ const CreateWorkout = () => {
 
             {/* Workout Form */}
             <div className="mx-10 my-20">
-                <form onSubmit={SubmitHandler} className="space-y-6">
+                <form className="space-y-6">
                     {/* Flex container for fields */}
                     <Flex className="flex-wrap gap-4">
                         <label className="flex-1 mr-4 min-w-[250px]">
@@ -397,7 +390,7 @@ const CreateWorkout = () => {
                         </label>
                     </Flex>
 
-                    <button type='submit' className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900' >Save</button>
+                    <button className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900' >Save</button>
                 </form>
             </div>
         </>

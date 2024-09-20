@@ -7,46 +7,7 @@ import { BiChevronLeft } from 'react-icons/bi';
 import { useTheme } from '../../ThemeProvider'; // Import the theme context
 
 
-interface Invoice {
-  id: string;
-  customer: string;
-  amount: string;
-  issued: string;
-  dueDate: string;
-}
-
-const invoiceData: Invoice[] = [
-  {
-    id: "PROJ1001",
-    customer: "John Doe",
-    amount: "$1,200.00",
-    issued: "2024-08-01",
-    dueDate: "2024-08-15",
-  },
-  {
-    id: "PROJ1002",
-    customer: "Jane Smith",
-    amount: "$850.00",
-    issued: "2024-08-05",
-    dueDate: "2024-08-20",
-  },
-  {
-    id: "PROJ1003",
-    customer: "Acme Corp",
-    amount: "$2,500.00",
-    issued: "2024-08-07",
-    dueDate: "2024-08-21",
-  },
-  {
-    id: "PROJ1004",
-    customer: "Global Inc",
-    amount: "$4,750.00",
-    issued: "2024-08-10",
-    dueDate: "2024-08-25",
-  },
-];
-
-const ManageWorkout: React.FC = () => {
+const ManageClass: React.FC = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { appearance } = useTheme(); // Get the current theme (light or dark)
     const [currentPage, setCurrentPage] = useState(1);
@@ -68,11 +29,7 @@ const ManageWorkout: React.FC = () => {
     // Handle pagination click
     const paginate = (pageNumber:any) => setCurrentPage(pageNumber);
 
-    const [searchTerm, setSearchTerm] = useState<string>("");
 
-    const filteredInvoices = invoiceData.filter((invoice) =>
-      invoice.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <>
@@ -81,7 +38,7 @@ const ManageWorkout: React.FC = () => {
                     <Link to='/channel' className="block bg-transparent hover:bg-transparent active:bg-transparent sm:hidden">
                         <BiChevronLeft size='24' className="block text-gray-12" />
                     </Link>
-                    <Heading size='5'>Create Workouts</Heading>
+                    <Heading size='5'>Manage Class</Heading>
                 </Flex>
             </PageHeader>
 
@@ -119,7 +76,7 @@ const ManageWorkout: React.FC = () => {
                     </div>
 
                     <div>
-                     <Link className="p-4 font-semibold" to={'/channel/workout/create'}>Add Workout</Link>
+                     <Link className="p-4 font-semibold" to={'/channel/class/create'}>Add Class</Link>
                     </div>
                 </div>
 
@@ -132,11 +89,11 @@ const ManageWorkout: React.FC = () => {
                         <tr>
                             <th scope="col" className="px-6 py-3">
                             ID</th>
-                            <th scope="col" className="px-6 py-3">Workout Name</th>
                             <th scope="col" className="px-6 py-3">
-                            Category</th>
+                            Title</th>
                             <th scope="col" className="px-6 py-3">
-                            Status</th>
+                            Description</th>
+                           
                             <th scope="col" className="px-6 py-3">Action</th>
                         </tr>
                     </thead>
@@ -158,7 +115,7 @@ const ManageWorkout: React.FC = () => {
                                 </th>
                                 <td className="px-6 py-4">{item.color}</td>
                                 <td className="px-6 py-4">{item.category}</td>
-                                <td className="px-6 py-4">{item.price}</td>
+                      
                                 <td className="px-6 py-4">
                                     <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                         Edit
@@ -197,4 +154,4 @@ const ManageWorkout: React.FC = () => {
     );
 };
 
-export const Component = ManageWorkout;
+export const Component = ManageClass;

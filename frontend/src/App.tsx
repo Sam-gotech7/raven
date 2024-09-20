@@ -29,7 +29,9 @@ const router = createBrowserRouter(
             <Route path="saved-messages" lazy={() => import('./components/feature/saved-messages/SavedMessages')} />
             <Route path="workout" lazy={() => import('./components/workout/ManageWorkout')} />
             <Route path="workout/create" lazy={() => import('./components/workout/CreateWorkout')} />
-
+            <Route path="workout/:id" lazy={() => import('./components/workout/CreateWorkout')} />
+            <Route path="class" lazy={() => import('./components/class/ManageClass')} />
+            <Route path="class/create" lazy={() => import('./components/class/CreateClass')} />
             <Route path="settings" lazy={() => import('./pages/settings/Settings')}>
               <Route index element={<UserProfile />} />
               <Route path="profile" element={<UserProfile />} />
