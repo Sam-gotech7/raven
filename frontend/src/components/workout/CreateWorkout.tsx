@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useContext, useState } from "react"
+import { FrappeConfig, FrappeContext, FrappeError } from "frappe-react-sdk"
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../layout/Heading/PageHeader';
 import { Heading } from '@radix-ui/themes';
@@ -12,6 +13,7 @@ const CreateWorkout = () => {
     const { appearance } = useTheme(); // Get the current theme (light or dark)
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(2); // Set the number of items per page
+    const { call } = useContext(FrappeContext) as FrappeConfig
 
     const [workoutForm, setWorkoutForm] = useState({
         workoutName: '',
@@ -93,6 +95,16 @@ const CreateWorkout = () => {
         console.log(exerciseList);
     };
     
+    const searchParams = {
+        doctype: 'Go Location',
+        txt: '',
+      };
+      call
+        .get('frappe.desk.search.search_link', searchParams)
+        .then((result) => {console.log("result") 
+            console.log(result)})
+        .catch((error) => console.error(error));
+
 
     return (
         <>
