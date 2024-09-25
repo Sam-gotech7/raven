@@ -7,6 +7,7 @@ import { BiChevronLeft } from 'react-icons/bi';
 import { useTheme } from '../../ThemeProvider'; 
 import { FrappeConfig, FrappeContext,useFrappeAuth,useFrappeGetDoc } from "frappe-react-sdk";
 import Select from 'react-select'; 
+import { toast } from 'sonner'
 
 const CreateClass = () => {
     const { appearance } = useTheme(); 
@@ -236,7 +237,31 @@ if (classForm?.category == 'Workout') {
         "minimum_capacity": classForm?.minimumCapacity || 0,
         "maximum_capacity": classForm?.maximumCapacity || 0
     })
-        .then((doc) => console.log(doc))
+        .then((doc) => {
+            toast.success("Class Add successfully")
+            setClassForm({
+                title: '',
+                workouts: [],
+                location: '',
+                type: '',
+                description: '',
+                category: 'Workout', 
+                prerequisites: '',
+                equipments: '',
+                status: 'Active',
+                visibilityStatus: 'Private', 
+                requiredCapacity: false, 
+                equipmentsprerequisites:[],
+                minimumCapacity: '',
+                maximumCapacity: '',
+                tagItem: '',
+                isPaid: false,
+                rate: '',
+                feeDescription: '',
+                duration: '',
+                
+            })
+        }    )
         .catch((error) => console.error(error));
 }
 
@@ -268,7 +293,31 @@ if (classForm?.category == 'Service') {
             "class_fee": classForm?.rate,
             "fee_description": classForm?.feeDescription
         })
-        .then((doc) => console.log(doc))
+        .then((doc) => {
+            toast.success("Class Add successfully")
+            setClassForm({
+                title: '',
+                workouts: [],
+                location: '',
+                type: '',
+                description: '',
+                category: 'Workout', 
+                prerequisites: '',
+                equipments: '',
+                status: 'Active',
+                visibilityStatus: 'Private', 
+                requiredCapacity: false, 
+                equipmentsprerequisites:[],
+                minimumCapacity: '',
+                maximumCapacity: '',
+                tagItem: '',
+                isPaid: false,
+                rate: '',
+                feeDescription: '',
+                duration: '',
+                
+            })
+        })
         .catch((error) => console.error(error));
     
 }
@@ -307,7 +356,31 @@ db.createDoc('Classes', {
     "class_fee": classForm.rate,
     "fee_description": classForm.feeDescription
 })
-    .then((doc) => console.log(doc))
+    .then((doc) => {
+        toast.success("Class Add successfully")
+            setClassForm({
+                title: '',
+                workouts: [],
+                location: '',
+                type: '',
+                description: '',
+                category: 'Workout', 
+                prerequisites: '',
+                equipments: '',
+                status: 'Active',
+                visibilityStatus: 'Private', 
+                requiredCapacity: false, 
+                equipmentsprerequisites:[],
+                minimumCapacity: '',
+                maximumCapacity: '',
+                tagItem: '',
+                isPaid: false,
+                rate: '',
+                feeDescription: '',
+                duration: '',
+                
+            })
+    })
     .catch((error) => console.error(error));
 }
        
