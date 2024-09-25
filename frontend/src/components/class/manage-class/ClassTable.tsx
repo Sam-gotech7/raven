@@ -83,9 +83,7 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
                                     <Tooltip content="Edit">
                                         <FiEdit style={{ cursor: 'pointer' }} />
                                     </Tooltip>
-                                    <Tooltip content="Delete">
-                                        <FiTrash style={{ cursor: 'pointer' }} />
-                                    </Tooltip>
+                                    
                                 </Flex>
                             </Table.Cell>
                         </Table.Row>

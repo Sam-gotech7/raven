@@ -24,6 +24,8 @@ interface AddUsersResponse {
 
 const AddUsers = () => {
 
+    console.log(isSystemManager)
+
     const { mutate } = useSWRConfig()
     const [searchText, setSearchText] = useState("")
     const debouncedText = useDebounce(searchText, 200)
