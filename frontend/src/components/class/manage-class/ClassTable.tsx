@@ -4,7 +4,7 @@ import { Badge, Box, Checkbox, Flex, Table, Tooltip } from "@radix-ui/themes"
 import { UserAvatar } from "@/components/common/UserAvatar"
 import { StandardDate } from "@/utils/dateConversions"
 import { FiAlertTriangle, FiEdit, FiTrash } from "react-icons/fi"
-
+import { useNavigate } from "react-router-dom";
 interface UsersTableProps {
     data: User[],
     defaultSelected: string[],
@@ -13,7 +13,7 @@ interface UsersTableProps {
 }
 
 export const UsersTable = ({ data, selected, setSelected, defaultSelected }: UsersTableProps) => {
-
+    const navigate = useNavigate(); 
     const setAllChecked = (checked: boolean) => {
         if (checked) {
             setSelected((curr) => {
@@ -55,6 +55,13 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
         })
     }
 
+
+    const handleEditClick = (workoutName: string) => {
+        const formattedWorkoutName = workoutName.replace(/\s+/g, '-');
+        console.log(formattedWorkoutName)
+        navigate(`/channel/class/edit/${formattedWorkoutName}`);  
+      };
+      
     return (
         <Table.Root variant="surface">
             <Table.Header>
@@ -81,7 +88,7 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
                             <Table.Cell>
                             <Flex align="center" gap="2">
                                     <Tooltip content="Edit">
-                                        <FiEdit style={{ cursor: 'pointer' }} />
+                                        <FiEdit style={{ cursor: 'pointer' }}  onClick={() => handleEditClick(workout.name)} />
                                     </Tooltip>
                                     
                                 </Flex>

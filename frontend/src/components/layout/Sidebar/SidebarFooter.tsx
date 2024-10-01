@@ -62,15 +62,17 @@ export const SidebarFooter = () => {
                                     <BsEmojiSmile size='14' /> Set custom status
                                 </DropdownMenu.Item>
                                 <PushNotificationToggle />
-                                <DropdownMenu.Separator />
-                                <DropdownMenu.Item color='red' className={'flex justify-normal gap-2'} onClick={logout}>
+                               
                                 {!isGymMemberUser || !isMobile ? (
-                                    <DropdownMenu.Item color='red' className={'flex justify-normal gap-2'} onClick={logout}>
-                                        <MdOutlineExitToApp size='14' /> Log Out
-                                    </DropdownMenu.Item>
+                                    <>
+                                        <DropdownMenu.Separator />
+                                        <DropdownMenu.Item color='red' className={'flex justify-normal gap-2'} onClick={logout}>
+                                            <MdOutlineExitToApp size='14' /> Log Out
+                                        </DropdownMenu.Item>
+                                    </>
                                 ) : null}
-                                </DropdownMenu.Item>
                             </DropdownMenu.Content>
+    
                         </DropdownMenu.Root>
                     </Flex>
                 </Flex>

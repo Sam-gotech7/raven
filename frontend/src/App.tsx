@@ -32,6 +32,7 @@ const router = createBrowserRouter(
             <Route path="workout/:id" lazy={() => import('./components/workout/CreateWorkout')} />
             <Route path="class" lazy={() => import('./components/class/manage-class/ManageClass')} />
             <Route path="class/create" lazy={() => import('./components/class/CreateClass')} />
+            <Route path="class/edit/:id" lazy={() => import('./components/class/EditClass')} />
             <Route path="settings" lazy={() => import('./pages/settings/Settings')}>
               <Route index element={<UserProfile />} />
               <Route path="profile" element={<UserProfile />} />
