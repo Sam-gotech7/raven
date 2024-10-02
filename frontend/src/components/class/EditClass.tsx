@@ -205,15 +205,17 @@ console.log('work',newClassData)
 if (classForm?.category == 'Workout') {
         const workoutGroups = classForm.workouts?.map((workout: string) => ({
             "doctype": "Workout Group",
-            "workout": workout,
+            "workout": workout?.workout,
+            "parent": newClassData?.name
         }));
         const equipmentGroups = classForm.equipmentsprerequisites?.map((equipment: string) => ({
             "doctype": "Equipment Group",
-            "equipment_name": equipment,
+            "equipment_name": equipment?.equipment_name,
+            "parent": newClassData?.name
         }));
         const randomName = `new-classes-${generateRandomString()}`;
 
-    db.updateDoc('Classes', randomName,{
+    db.updateDoc('Classes', newClassData?.name,{
         "doctype": "Classes",
         "type": "Workout",
         "workouts": workoutGroups,
@@ -237,6 +239,79 @@ if (classForm?.category == 'Workout') {
         .catch((error) => console.error(error));
 }
 
+if (classForm?.category == 'Service') {
+    const equipmentGroups = classForm.equipmentsprerequisites?.map((equipment: string) => ({
+        "doctype": "Equipment Group",
+        "equipment_name": equipment?.equipment_name,
+        "parent": newClassData?.name
+    }));
+    const randomName = `new-classes-${generateRandomString()}`;
+        db.updateDoc('Classes', newClassData?.name, {
+            "doctype": "Classes",
+            "type": "Service",
+            "workouts": [],
+            "req_capacity": classForm?.requiredCapacity == true ? 1 : 0,
+            "equipments_pre": equipmentGroups,
+            "is_paid": classForm.isPaid ? 1 : 0,
+            "status": classForm?.status,
+            "visibility_status": classForm?.visibilityStatus,
+            "tag_item": classForm?.tagItem,
+            "class_title": classForm?.title,
+            "location": classForm?.location,
+            "class_description": classForm?.description,
+            "class_type": classForm?.type,
+            "duration": classForm?.duration,
+            "prequisites": classForm?.prerequisites,
+            "class_fee": classForm?.rate,
+            "fee_description": classForm?.feeDescription
+        })
+        .then((doc) => {
+            toast.success("Class Edited successfully")
+           
+        })
+        .catch((error) => console.error(error));
+    
+}
+
+if (classForm?.category == 'Class') {
+    const workoutGroups = classForm.workouts?.map((workout: string) => ({
+        "doctype": "Workout Group",
+        "workout": workout?.workout,
+        "parent": newClassData?.name
+    }));
+    const equipmentGroups = classForm.equipmentsprerequisites?.map((equipment: string) => ({
+        "doctype": "Equipment Group",
+        "equipment_name": equipment?.equipment_name,
+        "parent": newClassData?.name
+    }));
+    const randomName = `new-classes-${generateRandomString()}`;
+
+db.updateDoc('Classes', newClassData?.name ,{
+    "doctype": "Classes",
+    "type": "Class",
+    "workouts": workoutGroups,
+    "req_capacity": classForm?.requiredCapacity == true ? 1 : 0,
+    "equipments_pre": equipmentGroups,
+    "is_paid": classForm.isPaid ? 1 : 0,
+    "status": classForm.status,
+    "visibility_status": classForm.visibilityStatus,
+    "class_title": classForm.title,
+    "location": classForm.location,
+    "minimum_capacity": classForm.minimumCapacity,
+    "maximum_capacity": classForm.maximumCapacity,
+    "tag_item": classForm.tagItem,
+    "class_description": classForm.description,
+    "class_type": classForm.type,
+    "prequisites": classForm.prerequisites,
+    "class_fee": classForm.rate,
+    "fee_description": classForm.feeDescription
+})
+    .then((doc) => {
+        toast.success("Class Edited successfully")
+           
+    })
+    .catch((error) => console.error(error));
+}
        
     };
 
