@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BiShow, BiHide, BiLogoGithub, BiLogoGoogle, BiLogoFacebookCircle, BiMailSend } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { Link ,useSearchParams} from "react-router-dom";
 import { Box, Button, Flex, IconButton, Text, TextField, Separator, Link as LinkButton } from "@radix-ui/themes";
 import { FrappeError, useFrappeGetCall, useFrappeAuth, AuthResponse } from "frappe-react-sdk";
 import { Loader } from "@/components/common/Loader";
@@ -10,6 +10,8 @@ import { LoginInputs, LoginContext } from "@/types/Auth/Login";
 import AuthContainer from "@/components/layout/AuthContainer";
 import { TwoFactor } from "@/pages/auth/TwoFactor";
 import { ErrorBanner } from "@/components/layout/AlertBanner";
+import Cookies from 'js-cookie';
+
 
 const SocialProviderIcons = {
     "github": <BiLogoGithub size="18" />,
@@ -29,6 +31,28 @@ interface SocialProvider {
 }
 
 export const Component = () => {
+
+    const [searchParams] = useSearchParams();
+    const sid = searchParams.get('sid');
+
+    function setCookieOnServer(sid: string) {
+        fetch('/api/method/raven.api.login.set_user_cookie?sid=' + sid + '', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error setting cookie:', error));
+    }
+
+    useEffect(() => {
+        if (sid) {
+            setCookieOnServer(sid)
+        }
+    }, [sid]);
 
     // GET call for Login Context (settings for social logins, email link etc)
     const { data: loginContext, mutate } = useFrappeGetCall<LoginContext>('raven.api.login.get_context', {

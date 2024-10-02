@@ -13,9 +13,7 @@ import { useNavigate } from 'react-router-dom'
 import { SetUserAvailabilityMenu } from '@/components/feature/userSettings/AvailabilityStatus/SetUserAvailabilityMenu'
 import { SetCustomStatusModal } from '@/components/feature/userSettings/CustomStatus/SetCustomStatusModal'
 import PushNotificationToggle from '@/components/feature/userSettings/PushNotifications/PushNotificationToggle'
-import { isSystemManager } from '@/utils/roles'
-import { isGymInstructor } from '@/utils/roles'
-import { isGymMember } from '@/utils/roles'
+import { isGymMemberonly } from '@/utils/roles'
 import { useMediaQuery } from 'react-responsive' 
 
 export const SidebarFooter = () => {
@@ -28,7 +26,7 @@ export const SidebarFooter = () => {
     const { myProfile } = useCurrentRavenUser()
     const isActive = useIsUserActive(userData.name)
     const isMobile = useMediaQuery({ maxWidth: 767 }) 
-    const isGymMemberUser = isGymMember()
+    const isGymMemberUser = isGymMemberonly()
     const navigate = useNavigate()
 
     return (

@@ -22,6 +22,9 @@ export const isGymMember = () => {
     //@ts-expect-error
     return (window?.frappe?.boot?.user?.roles ?? []).includes('Gym Member');
 }
+export const isGymMemberonly = () =>{
+    return  isGymMember() && !isGymInstructor() && !isSystemManager()
+}
 
 export const hasServerScriptEnabled = () => {
     if (import.meta.env.DEV) {
