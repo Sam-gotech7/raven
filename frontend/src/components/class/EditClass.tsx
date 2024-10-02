@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useParams,Link } from 'react-router-dom';
 import { PageHeader } from '../layout/Heading/PageHeader';
 import { Heading } from '@radix-ui/themes';
 import { Flex } from '@radix-ui/themes';
@@ -9,44 +9,40 @@ import { FrappeConfig, FrappeContext,useFrappeAuth,useFrappeGetDoc } from "frapp
 import Select from 'react-select'; 
 import { toast } from 'sonner'
 
-const CreateClass = () => {
+const EditClass = () => {
+    const { id } = useParams();
+const formattedId = id?.replace(/-/g, ' ');
+
+
     const { appearance } = useTheme(); 
     const { call,db } = useContext(FrappeContext) as FrappeConfig;
     const { currentUser } = useFrappeAuth()
-    const [classForm, setClassForm] = useState({
-        title: '',
-        workouts: [],
-        location: '',
-        type: '',
-        description: '',
-        category: 'Workout', 
-        prerequisites: '',
-        equipments: '',
-        status: 'Active',
-        visibilityStatus: 'Private', 
-        requiredCapacity: false, 
-        equipmentsprerequisites:[],
-        minimumCapacity: '',
-        maximumCapacity: '',
-        tagItem: '',
-        isPaid: false,
-        rate: '',
-        feeDescription: '',
-        duration: '',
-        
-    });
    const [selectedTagdataDetails,setSelectedTagdataDetails] = useState(0)
-  
-    const { data: tagData, error, mutate } = useFrappeGetDoc('Item', classForm.tagItem);
+   const { data: newClassData, error } = useFrappeGetDoc('Classes', formattedId);
+   console.log(newClassData)
+   const [classForm, setClassForm] = useState({
+    title: newClassData?.class_title || '',
+    workouts: newClassData?.workouts || [],
+    location: newClassData?.location || '',
+    type: newClassData?.class_type || '',
+    description: newClassData?.class_description || '',
+    category: newClassData?.type || 'Workout', 
+    prerequisites: newClassData?.prequisites || '',
+    status: newClassData?.status || 'Active',
+    visibilityStatus: newClassData?.visibility_status || 'Private', 
+    requiredCapacity: newClassData?.req_capacity == 1 ? true : false || false, 
+    equipmentsprerequisites:newClassData?.equipments_pre ||[],
+    minimumCapacity: newClassData?.minimum_capacity || '',
+    maximumCapacity: newClassData?.maximum_capacity || '',
+    tagItem: newClassData?.tag_item || '',
+    isPaid: newClassData?.is_paid == 1 ? true : false || false,
+    rate: newClassData?.class_fee || 0,
+    feeDescription: newClassData?.fee_description || '',
+    duration: newClassData?.duration || '',
+    
+});
 
-    useEffect(() => {
-        if (classForm.tagItem && tagData?.standard_rate > 0) {
-            setSelectedTagdataDetails(tagData.standard_rate);
-            setClassForm((prev) => ({ ...prev, rate: String(tagData.standard_rate) }));
-        }
-    }, [classForm.tagItem, tagData]);
-    
-    
+console.log('work',newClassData)
 
     const [locationOptions, setLocationOptions] = useState([]); 
     const [classOptions, setClassOptions] = useState([]); 
@@ -209,19 +205,18 @@ const CreateClass = () => {
 if (classForm?.category == 'Workout') {
         const workoutGroups = classForm.workouts?.map((workout: string) => ({
             "doctype": "Workout Group",
-            "workout": workout,
+            "workout": workout?.workout,
+            "parent": newClassData?.name
         }));
         const equipmentGroups = classForm.equipmentsprerequisites?.map((equipment: string) => ({
             "doctype": "Equipment Group",
-            "equipment_name": equipment,
+            "equipment_name": equipment?.equipment_name,
+            "parent": newClassData?.name
         }));
         const randomName = `new-classes-${generateRandomString()}`;
 
-    db.createDoc('Classes', {
-        "docstatus": 0,
+    db.updateDoc('Classes', newClassData?.name,{
         "doctype": "Classes",
-        "name": randomName, 
-        "owner": currentUser,
         "type": "Workout",
         "workouts": workoutGroups,
         "req_capacity": classForm?.requiredCapacity == true ? 1 : 0,
@@ -239,28 +234,7 @@ if (classForm?.category == 'Workout') {
     })
         .then((doc) => {
             toast.success("Class Add successfully")
-            setClassForm({
-                title: '',
-                workouts: [],
-                location: '',
-                type: '',
-                description: '',
-                category: 'Workout', 
-                prerequisites: '',
-                equipments: '',
-                status: 'Active',
-                visibilityStatus: 'Private', 
-                requiredCapacity: false, 
-                equipmentsprerequisites:[],
-                minimumCapacity: '',
-                maximumCapacity: '',
-                tagItem: '',
-                isPaid: false,
-                rate: '',
-                feeDescription: '',
-                duration: '',
-                
-            })
+           
         }    )
         .catch((error) => console.error(error));
 }
@@ -268,14 +242,12 @@ if (classForm?.category == 'Workout') {
 if (classForm?.category == 'Service') {
     const equipmentGroups = classForm.equipmentsprerequisites?.map((equipment: string) => ({
         "doctype": "Equipment Group",
-        "equipment_name": equipment,
+        "equipment_name": equipment?.equipment_name,
+        "parent": newClassData?.name
     }));
     const randomName = `new-classes-${generateRandomString()}`;
-        db.createDoc('Classes', {
-            "docstatus": 0,
+        db.updateDoc('Classes', newClassData?.name, {
             "doctype": "Classes",
-            "name": randomName,
-            "owner": currentUser,
             "type": "Service",
             "workouts": [],
             "req_capacity": classForm?.requiredCapacity == true ? 1 : 0,
@@ -294,29 +266,8 @@ if (classForm?.category == 'Service') {
             "fee_description": classForm?.feeDescription
         })
         .then((doc) => {
-            toast.success("Class Add successfully")
-            setClassForm({
-                title: '',
-                workouts: [],
-                location: '',
-                type: '',
-                description: '',
-                category: 'Workout', 
-                prerequisites: '',
-                equipments: '',
-                status: 'Active',
-                visibilityStatus: 'Private', 
-                requiredCapacity: false, 
-                equipmentsprerequisites:[],
-                minimumCapacity: '',
-                maximumCapacity: '',
-                tagItem: '',
-                isPaid: false,
-                rate: '',
-                feeDescription: '',
-                duration: '',
-                
-            })
+            toast.success("Class Edited successfully")
+           
         })
         .catch((error) => console.error(error));
     
@@ -325,19 +276,18 @@ if (classForm?.category == 'Service') {
 if (classForm?.category == 'Class') {
     const workoutGroups = classForm.workouts?.map((workout: string) => ({
         "doctype": "Workout Group",
-        "workout": workout,
+        "workout": workout?.workout,
+        "parent": newClassData?.name
     }));
     const equipmentGroups = classForm.equipmentsprerequisites?.map((equipment: string) => ({
         "doctype": "Equipment Group",
-        "equipment_name": equipment,
+        "equipment_name": equipment?.equipment_name,
+        "parent": newClassData?.name
     }));
     const randomName = `new-classes-${generateRandomString()}`;
 
-db.createDoc('Classes', {
-    "docstatus": 0,
+db.updateDoc('Classes', newClassData?.name ,{
     "doctype": "Classes",
-    "name": randomName,
-    "owner": currentUser,
     "type": "Class",
     "workouts": workoutGroups,
     "req_capacity": classForm?.requiredCapacity == true ? 1 : 0,
@@ -357,34 +307,18 @@ db.createDoc('Classes', {
     "fee_description": classForm.feeDescription
 })
     .then((doc) => {
-        toast.success("Class Add successfully")
-            setClassForm({
-                title: '',
-                workouts: [],
-                location: '',
-                type: '',
-                description: '',
-                category: 'Workout', 
-                prerequisites: '',
-                equipments: '',
-                status: 'Active',
-                visibilityStatus: 'Private', 
-                requiredCapacity: false, 
-                equipmentsprerequisites:[],
-                minimumCapacity: '',
-                maximumCapacity: '',
-                tagItem: '',
-                isPaid: false,
-                rate: '',
-                feeDescription: '',
-                duration: '',
-                
-            })
+        toast.success("Class Edited successfully")
+           
     })
     .catch((error) => console.error(error));
 }
        
     };
+
+
+    if (!newClassData?.class_title) {
+     return <p>Loading</p>   
+    }
 
     
     const renderConditionalFields = () => {
@@ -425,6 +359,8 @@ db.createDoc('Classes', {
                                 options={tagptions} 
                                 onInputChange={fetchTagsOptions} 
                                 onChange={handleTagChange} 
+                                value={classForm.tagItem ? { label: classForm.tagItem, value: classForm.tagItem } : null} // Pre-select if available
+
                                 placeholder="Search Item"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -507,6 +443,8 @@ db.createDoc('Classes', {
         if (classForm.category === 'Service') {
             return (
                 <>
+                   
+
                     <Flex className="flex-wrap gap-4">
                     <label className="flex-1 min-w-[250px]">
                             Tag Item
@@ -516,6 +454,8 @@ db.createDoc('Classes', {
                                 options={tagptions} 
                                 onInputChange={fetchTagsOptions} 
                                 onChange={handleTagChange} 
+                                value={classForm.tagItem ? { label: classForm.tagItem, value: classForm.tagItem } : null} // Pre-select if available
+
                                 placeholder="Search Item"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -619,7 +559,7 @@ db.createDoc('Classes', {
                     <Link to="/channel" className="block bg-transparent hover:bg-transparent active:bg-transparent sm:hidden">
                         <BiChevronLeft size="24" className="block text-gray-12" />
                     </Link>
-                    <Heading size="5">Create Class</Heading>
+                    <Heading size="5">Edit Class</Heading>
                 </Flex>
             </PageHeader>
 
@@ -644,6 +584,9 @@ db.createDoc('Classes', {
                                     options={workoutOptions} 
                                     onInputChange={fetchWorkoutOptions} 
                                     onChange={handleWorkoutChange} 
+                                    value={classForm.workouts && classForm.workouts.length > 0 
+                                        ? classForm.workouts.map((workoutObj:any) => ({ label: workoutObj.workout, value: workoutObj.workout })) 
+                                        : []} 
                                     placeholder="Search Workouts"
                                     className="basic-multi-select"
                                     classNamePrefix="select"
@@ -700,6 +643,7 @@ db.createDoc('Classes', {
                                 options={locationOptions} 
                                 onInputChange={fetchLocationOptions} 
                                 onChange={handleLocationChange} 
+                                value={classForm.location ? { label: classForm.location, value: classForm.location } : null} 
                                 placeholder="Search Location"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -743,6 +687,7 @@ db.createDoc('Classes', {
                                 options={classOptions} 
                                 onInputChange={fetchClassOptions} 
                                 onChange={handleTypeChange} 
+                                value={classForm.type ? { label: classForm.type, value: classForm.type } : null} 
                                 placeholder="Search Class Type"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -799,6 +744,14 @@ db.createDoc('Classes', {
         options={gymEquipmentOptions}
         onInputChange={fetchGymEquipmentOptions}
         onChange={handleEquipmentChange}
+        value={
+            classForm.equipmentsprerequisites && classForm.equipmentsprerequisites.length > 0
+                ? classForm.equipmentsprerequisites.map((equipmentObj:any) => ({ 
+                    label: equipmentObj.equipment_name, // Use the correct field (equipment_name) 
+                    value: equipmentObj.equipment_name // Use the correct field (equipment_name)
+                }))
+                : []
+        }
         placeholder="Search Equipments"
         className="basic-multi-select"
         classNamePrefix="select"
@@ -962,4 +915,4 @@ db.createDoc('Classes', {
     );
 };
 
-export const Component = CreateClass;
+export const Component = EditClass;

@@ -32,13 +32,13 @@ const AddUsers = () => {
         setSearchText(event.target.value)
     }
 
-    const filters: Filter[] = [['class_title', 'like', `%${debouncedText}%`]]
-    const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("Classes", 10,filters)
+    const filters: Filter[] = [['workout_name', 'like', `%${debouncedText}%`]]
+    const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("Workout Master", 10,filters)
     const [sortOrder, setSortOder] = useState<"asc" | "desc">("desc")
    
 
-    const { data, error } = useFrappeGetDocList("Classes", {
-        fields: ['class_title','class_description','creation', 'name'],
+    const { data, error } = useFrappeGetDocList("Workout Master", {
+        fields: ['workout_name','category','creation', 'name'],
         filters,
         orderBy: {
             field: 'creation',

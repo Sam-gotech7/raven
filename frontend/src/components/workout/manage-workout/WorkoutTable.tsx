@@ -62,7 +62,7 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
                     <Table.ColumnHeaderCell><Checkbox checked={isAllChecked} onCheckedChange={(e) => setAllChecked(e.valueOf() ? true : false)} /></Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>ID</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>Title</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell>Description</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell>Category</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>Action</Table.ColumnHeaderCell>
                 </Table.Row>
             </Table.Header>
@@ -76,15 +76,12 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
                                {workout.name}
                             </Table.Cell>
 
-                            <Table.Cell>{workout.class_title}</Table.Cell>
-                            <Table.Cell>{workout.class_description}</Table.Cell>
+                            <Table.Cell>{workout.workout_name}</Table.Cell>
+                            <Table.Cell>{workout.category}</Table.Cell>
                             <Table.Cell>
                             <Flex align="center" gap="2">
                                     <Tooltip content="Edit">
                                         <FiEdit style={{ cursor: 'pointer' }} />
-                                    </Tooltip>
-                                    <Tooltip content="Delete">
-                                        <FiTrash style={{ cursor: 'pointer' }} />
                                     </Tooltip>
                                 </Flex>
                             </Table.Cell>
