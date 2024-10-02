@@ -19,11 +19,12 @@ const formattedId = id?.replace(/-/g, ' ');
     const { currentUser } = useFrappeAuth()
    const [selectedTagdataDetails,setSelectedTagdataDetails] = useState(0)
    const { data: newClassData, error } = useFrappeGetDoc('Classes', formattedId);
+   console.log(newClassData)
    const [classForm, setClassForm] = useState({
     title: newClassData?.class_title || '',
     workouts: newClassData?.workouts || [],
     location: newClassData?.location || '',
-    type: newClassData?.type || '',
+    type: newClassData?.class_type || '',
     description: newClassData?.class_description || '',
     category: newClassData?.type || 'Workout', 
     prerequisites: newClassData?.prequisites || '',
@@ -41,6 +42,7 @@ const formattedId = id?.replace(/-/g, ' ');
     
 });
 
+console.log('work',newClassData)
 
     const [locationOptions, setLocationOptions] = useState([]); 
     const [classOptions, setClassOptions] = useState([]); 
@@ -211,11 +213,8 @@ if (classForm?.category == 'Workout') {
         }));
         const randomName = `new-classes-${generateRandomString()}`;
 
-    db.createDoc('Classes', {
-        "docstatus": 0,
+    db.updateDoc('Classes', randomName,{
         "doctype": "Classes",
-        "name": randomName, 
-        "owner": currentUser,
         "type": "Workout",
         "workouts": workoutGroups,
         "req_capacity": classForm?.requiredCapacity == true ? 1 : 0,
@@ -285,6 +284,8 @@ if (classForm?.category == 'Workout') {
                                 options={tagptions} 
                                 onInputChange={fetchTagsOptions} 
                                 onChange={handleTagChange} 
+                                value={classForm.tagItem ? { label: classForm.tagItem, value: classForm.tagItem } : null} // Pre-select if available
+
                                 placeholder="Search Item"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -367,30 +368,7 @@ if (classForm?.category == 'Workout') {
         if (classForm.category === 'Service') {
             return (
                 <>
-                    <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
-                            Minimum Capacity
-                            <input
-                                type="number"
-                                name="minimumCapacity"
-                                value={classForm.minimumCapacity}
-                                onChange={handleInputChange}
-                                placeholder="Minimum Capacity"
-                                className="border px-2 py-4 rounded-lg w-full"
-                            />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Maximum Capacity
-                            <input
-                                type="number"
-                                name="maximumCapacity"
-                                value={classForm.maximumCapacity}
-                                onChange={handleInputChange}
-                                placeholder="Maximum Capacity"
-                                className="border px-2 py-4 rounded-lg w-full"
-                            />
-                        </label>
-                    </Flex>
+                   
 
                     <Flex className="flex-wrap gap-4">
                     <label className="flex-1 min-w-[250px]">
@@ -401,6 +379,8 @@ if (classForm?.category == 'Workout') {
                                 options={tagptions} 
                                 onInputChange={fetchTagsOptions} 
                                 onChange={handleTagChange} 
+                                value={classForm.tagItem ? { label: classForm.tagItem, value: classForm.tagItem } : null} // Pre-select if available
+
                                 placeholder="Search Item"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -504,7 +484,7 @@ if (classForm?.category == 'Workout') {
                     <Link to="/channel" className="block bg-transparent hover:bg-transparent active:bg-transparent sm:hidden">
                         <BiChevronLeft size="24" className="block text-gray-12" />
                     </Link>
-                    <Heading size="5">Create Class</Heading>
+                    <Heading size="5">Edit Class</Heading>
                 </Flex>
             </PageHeader>
 
@@ -529,6 +509,9 @@ if (classForm?.category == 'Workout') {
                                     options={workoutOptions} 
                                     onInputChange={fetchWorkoutOptions} 
                                     onChange={handleWorkoutChange} 
+                                    value={classForm.workouts && classForm.workouts.length > 0 
+                                        ? classForm.workouts.map((workoutObj:any) => ({ label: workoutObj.workout, value: workoutObj.workout })) 
+                                        : []} 
                                     placeholder="Search Workouts"
                                     className="basic-multi-select"
                                     classNamePrefix="select"
@@ -585,6 +568,7 @@ if (classForm?.category == 'Workout') {
                                 options={locationOptions} 
                                 onInputChange={fetchLocationOptions} 
                                 onChange={handleLocationChange} 
+                                value={classForm.location ? { label: classForm.location, value: classForm.location } : null} 
                                 placeholder="Search Location"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -628,6 +612,7 @@ if (classForm?.category == 'Workout') {
                                 options={classOptions} 
                                 onInputChange={fetchClassOptions} 
                                 onChange={handleTypeChange} 
+                                value={classForm.type ? { label: classForm.type, value: classForm.type } : null} 
                                 placeholder="Search Class Type"
                                 className="basic-single"
                                 classNamePrefix="select"
@@ -684,6 +669,14 @@ if (classForm?.category == 'Workout') {
         options={gymEquipmentOptions}
         onInputChange={fetchGymEquipmentOptions}
         onChange={handleEquipmentChange}
+        value={
+            classForm.equipmentsprerequisites && classForm.equipmentsprerequisites.length > 0
+                ? classForm.equipmentsprerequisites.map((equipmentObj:any) => ({ 
+                    label: equipmentObj.equipment_name, // Use the correct field (equipment_name) 
+                    value: equipmentObj.equipment_name // Use the correct field (equipment_name)
+                }))
+                : []
+        }
         placeholder="Search Equipments"
         className="basic-multi-select"
         classNamePrefix="select"

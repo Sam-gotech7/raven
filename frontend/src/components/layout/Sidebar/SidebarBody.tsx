@@ -29,7 +29,7 @@ export const SidebarBody = () => {
                         label='Saved'
                         icon={<LuBookmark className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Saved Message' />
-                      {!isGymMemberUser && (
+                      {isGymMemberUser && (
                         <>
                             <SidebarItemForPage
                                 to={'workout'}

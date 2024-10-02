@@ -508,31 +508,6 @@ db.createDoc('Classes', {
             return (
                 <>
                     <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
-                            Minimum Capacity
-                            <input
-                                type="number"
-                                name="minimumCapacity"
-                                value={classForm.minimumCapacity}
-                                onChange={handleInputChange}
-                                placeholder="Minimum Capacity"
-                                className="border px-2 py-4 rounded-lg w-full"
-                            />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Maximum Capacity
-                            <input
-                                type="number"
-                                name="maximumCapacity"
-                                value={classForm.maximumCapacity}
-                                onChange={handleInputChange}
-                                placeholder="Maximum Capacity"
-                                className="border px-2 py-4 rounded-lg w-full"
-                            />
-                        </label>
-                    </Flex>
-
-                    <Flex className="flex-wrap gap-4">
                     <label className="flex-1 min-w-[250px]">
                             Tag Item
                           
