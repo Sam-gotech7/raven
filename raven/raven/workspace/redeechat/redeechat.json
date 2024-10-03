@@ -1,7 +1,7 @@
 {
  "app": "raven",
  "charts": [],
- "content": "[{\"id\":\"MKitHAnT4f\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\" style=\\\"background-color: rgb(168, 214, 255);\\\"><a href=\\\"/raven\\\">redeeChat</span><br>\",\"col\":12}},{\"id\":\"gBy2HFBNf4\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Raven\",\"col\":12}},{\"id\":\"ZcawYU5brv\",\"type\":\"card\",\"data\":{\"card_name\":\"DocTypes\",\"col\":4}}]",
+ "content": "[{\"id\":\"MKitHAnT4f\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\" style=\\\"background-color: rgb(168, 214, 255);\\\">redeeChat</span><br>\",\"col\":12}},{\"id\":\"gBy2HFBNf4\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Raven\",\"col\":12}},{\"id\":\"ZcawYU5brv\",\"type\":\"card\",\"data\":{\"card_name\":\"DocTypes\",\"col\":4}}]",
  "creation": "2023-06-22 20:12:29.687295",
  "custom_blocks": [],
  "docstatus": 0,
@@ -11,7 +11,7 @@
  "icon": "message-1",
  "idx": 0,
  "is_hidden": 0,
- "label": "Raven",
+ "label": "redeeChat",
  "links": [
   {
    "hidden": 0,
@@ -24,7 +24,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Raven Settings",
+   "label": "redeeChat Settings",
    "link_count": 0,
    "link_to": "Raven Settings",
    "link_type": "DocType",
@@ -34,7 +34,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Raven Users",
+   "label": "redeeChat Users",
    "link_count": 0,
    "link_to": "Raven User",
    "link_type": "DocType",
@@ -82,10 +82,10 @@
    "type": "Link"
   }
  ],
- "modified": "2024-10-04 01:13:23.208410",
+ "modified": "2024-10-04 01:19:59.892206",
  "modified_by": "Administrator",
  "module": "Raven",
- "name": "Raven",
+ "name": "redeeChat",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -94,5 +94,5 @@
  "roles": [],
  "sequence_id": 30.0,
  "shortcuts": [],
- "title": "Raven"
+ "title": "redeeChat"
 }
