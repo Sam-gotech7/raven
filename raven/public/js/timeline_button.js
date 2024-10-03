@@ -319,7 +319,7 @@ $(document).on('app_ready', function () {
             // check the button is not already added by checking the class name 'send-raven-button'
 
             timeline.add_action_button(
-              __('Send a Raven'),
+              __('Send a redeeChat'),
               send_raven,
               'share',
               'btn-secondary send-raven-button'
