@@ -23,7 +23,8 @@ export const isGymMember = () => {
     return (window?.frappe?.boot?.user?.roles ?? []).includes('Gym Member');
 }
 export const isGymMemberonly = () =>{
-    return  isGymMember() && !isGymInstructor() && !isSystemManager()
+    return  isGymMember() 
+    && !isGymInstructor() && !isSystemManager()
 }
 
 export const hasServerScriptEnabled = () => {

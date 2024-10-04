@@ -1,7 +1,7 @@
 import { useDebounce } from "@/hooks/useDebounce"
 import { usePaginationWithDoctype } from "@/hooks/usePagination"
 import { User } from "@/types/Core/User"
-import { Filter, useFrappeGetDocList, useFrappePostCall, useSWRConfig } from "frappe-react-sdk"
+import { Filter, useFrappeGetDocList, useFrappePostCall, useSWRConfig ,useFrappeAuth} from "frappe-react-sdk"
 import { ChangeEvent, useContext, useState } from "react"
 import { ErrorBanner } from "@/components/layout/AlertBanner"
 import { TableLoader } from "@/components/layout/Loaders/TableLoader"
@@ -25,6 +25,8 @@ interface AddUsersResponse {
 const AddUsers = () => {
 
     const { mutate } = useSWRConfig()
+    const { currentUser } = useFrappeAuth()
+
     const [searchText, setSearchText] = useState("")
     const debouncedText = useDebounce(searchText, 200)
     const navigate = useNavigate(); 
@@ -32,13 +34,13 @@ const AddUsers = () => {
         setSearchText(event.target.value)
     }
 
-    const filters: Filter[] = [['class_title', 'like', `%${debouncedText}%`]]
+    const filters: Filter[] = [['class_title', 'like', `%${debouncedText}%`],['owner', '=', `${currentUser}`]]
     const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("Classes", 10,filters)
     const [sortOrder, setSortOder] = useState<"asc" | "desc">("desc")
    
 
     const { data, error } = useFrappeGetDocList("Classes", {
-        fields: ['class_title','class_description','creation', 'name'],
+        fields: ['class_title','class_description','creation', 'name','owner'],
         filters,
         orderBy: {
             field: 'creation',
@@ -73,11 +75,11 @@ const AddUsers = () => {
             </Flex>
 
             <Flex direction='column' gap='4'>
-                <Flex justify='between' gap='2'>
+                <Flex wrap='wrap' justify='between' gap='2'>
                     <Flex gap='2' align='center'>
                         <TextField.Root onChange={handleChange}
-                            className='w-[24rem]'
-                            type='text'
+            className='375:w-[19rem] 400:w-[20rem] 425:w-[22rem] 450:w-[24rem] w-[22rem]'
+            type='text'
                             placeholder='Search for Class'>
                             <TextField.Slot side='left'>
                                 <BiSearch />

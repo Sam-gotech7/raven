@@ -1,7 +1,7 @@
 import { useDebounce } from "@/hooks/useDebounce"
 import { usePaginationWithDoctype } from "@/hooks/usePagination"
 import { User } from "@/types/Core/User"
-import { Filter, useFrappeGetDocList, useFrappePostCall, useSWRConfig } from "frappe-react-sdk"
+import { Filter, useFrappeGetDocList, useFrappePostCall, useSWRConfig, useFrappeAuth} from "frappe-react-sdk"
 import { ChangeEvent, useContext, useState } from "react"
 import { ErrorBanner } from "@/components/layout/AlertBanner"
 import { TableLoader } from "@/components/layout/Loaders/TableLoader"
@@ -23,6 +23,7 @@ interface AddUsersResponse {
 }
 
 const AddUsers = () => {
+    const { currentUser } = useFrappeAuth()
 
     const { mutate } = useSWRConfig()
     const [searchText, setSearchText] = useState("")
@@ -32,7 +33,7 @@ const AddUsers = () => {
         setSearchText(event.target.value)
     }
 
-    const filters: Filter[] = [['workout_name', 'like', `%${debouncedText}%`]]
+    const filters: Filter[] = [['workout_name', 'like', `%${debouncedText}%`],['owner', '=', `${currentUser}`]]
     const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("Workout Master", 10,filters)
     const [sortOrder, setSortOder] = useState<"asc" | "desc">("desc")
    
@@ -76,7 +77,7 @@ const AddUsers = () => {
                 <Flex justify='between' gap='2'>
                     <Flex gap='2' align='center'>
                         <TextField.Root onChange={handleChange}
-                            className='w-[24rem]'
+                            className='375:w-[19rem] 400:w-[20rem] 425:w-[22rem] 450:w-[24rem] w-[22rem]'
                             type='text'
                             placeholder='Search for Workout'>
                             <TextField.Slot side='left'>
