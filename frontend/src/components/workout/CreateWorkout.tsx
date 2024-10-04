@@ -1,5 +1,5 @@
 import { useContext, useState,useEffect } from "react"
-import { FrappeConfig, FrappeContext, FrappeError ,useFrappeAuth} from "frappe-react-sdk"
+import { FrappeConfig, FrappeContext, FrappeError ,useFrappeAuth,useFrappeFileUpload} from "frappe-react-sdk"
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../layout/Heading/PageHeader';
 import { Heading } from '@radix-ui/themes';
@@ -23,6 +23,25 @@ const CreateWorkout = () => {
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [targetedMuscleOptions, setTargetedMuscleOptions] = useState([]);
     const [exerciseListOptions, setExerciseListOptions] = useState([]);
+    const { upload, error, loading, progress, isCompleted, reset } = useFrappeFileUpload();
+    const [file, setFile] = useState<File>();
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files[0];
+        if (file && workoutForm?.workoutName) {
+          upload(file, {
+            isPrivate: false,
+            doctype: "Workout Master",
+            docname: workoutForm.workoutName
+          })
+          .then((r) => {
+            console.log(r.file_url);
+            // Reset the state of the hook
+            reset();
+          });
+        }
+      };
+ 
 
     const [workoutForm, setWorkoutForm] = useState({
         workoutName: '',
@@ -67,13 +86,47 @@ const CreateWorkout = () => {
         setExerciseList(updatedExerciseList);
     };
 
-    // Handle file change for thumbnail and support video
-    const handleFileChange = (index: number, e: any) => {
-        const { name, files } = e.target;
-        const updatedExerciseList = [...exerciseList];
-        updatedExerciseList[index][name] = files[0]; // Assign the selected file
-        setExerciseList(updatedExerciseList);
-    };
+
+const handleFileChange = (index: number, e: any) => {
+    const { name, files } = e.target;
+    const updatedExerciseList = [...exerciseList];
+    
+    if (name === "thumbnail") {
+       const toastId = toast.loading('uploading thubnail');
+        const file = files[0];
+        setFile(file);  // Set the selected file for upload
+        if (file && workoutForm?.workoutName) {
+            upload(file, {
+                isPrivate: false,
+                doctype: "Workout Master",
+                docname: workoutForm.workoutName,
+            }).then((r) => {
+                updatedExerciseList[index][name] = r.file_url; 
+                setExerciseList(updatedExerciseList);
+                toast.dismiss(toastId)
+                reset(); 
+            });
+        }
+    } else if (name === "supportVideo") {
+        const toastId = toast.loading('uploading Video');
+        const file = files[0];
+        setFile(file);
+        if (file && workoutForm?.workoutName) {
+            upload(file, {
+                isPrivate: false,
+                doctype: "Workout Master",
+                docname: workoutForm.workoutName,
+            }).then((r) => {
+                updatedExerciseList[index][name] = r.file_url; 
+                setExerciseList(updatedExerciseList);
+                toast.dismiss(toastId)
+                reset(); 
+            });
+        }
+    }
+
+    setExerciseList(updatedExerciseList);
+};
 
     // Add new exercise
     const addExercise = () => {
@@ -130,27 +183,29 @@ const CreateWorkout = () => {
                     "thumbnail": exer?.thumbnail,
                     "support_video": exer?.supportVideo
          }));
-        db.createDoc('Workout Master', {
+         const data = {
             "docstatus": 0,
             "doctype": "Workout Master",
             "name": randomName,
             "owner": currentUser,
             "targeted_muscle_group": targetedMuscles,
-            "company": workoutForm?.company,
+            "company": workoutForm?.company?.value,
             "equipments": selectedEquipments,
             "difficulty_level": workoutForm?.difficultyLevel,
             "exercise_list": selectedExerciseList ,
             "visibility": workoutForm?.visibility,
             "workout_name":workoutForm?.workoutName,
-            "category": workoutForm?.category,
+            "category": workoutForm?.category?.value,
             "duration": workoutForm?.duration,
             "description": workoutForm?.description,
             "notesinstructions": workoutForm?.notes,
             "benifites": workoutForm?.benefits,
-            "creater__author": workoutForm?.author,
+            "creater__author": workoutForm?.author?.value,
             "creation_date": workoutForm?.creationDate,
             "overall_rating": workoutForm?.overallRating
-        })
+        }
+        console.log(data)
+        db.createDoc('Workout Master', data)
             .then((doc) => {
                 toast.success("Workout Add successfully")
             }    )

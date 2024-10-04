@@ -33,7 +33,7 @@ const AddUsers = () => {
         setSearchText(event.target.value)
     }
 
-    const filters: Filter[] = [['workout_name', 'like', `%${debouncedText}%`],['owner', '=', `${currentUser}`]]
+    const filters: Filter[] = [['workout_name', 'like', `%${debouncedText}%`]]
     const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("Workout Master", 10,filters)
     const [sortOrder, setSortOder] = useState<"asc" | "desc">("desc")
    

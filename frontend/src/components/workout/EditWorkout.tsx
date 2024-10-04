@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useContext, useState,useEffect } from "react"
+import { FrappeConfig, FrappeContext, FrappeError ,useFrappeAuth,useFrappeFileUpload} from "frappe-react-sdk"
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../layout/Heading/PageHeader';
 import { Heading } from '@radix-ui/themes';
@@ -6,22 +7,51 @@ import { Box, Flex } from '@radix-ui/themes';
 import { BiChevronLeft } from 'react-icons/bi';
 import { useTheme } from '../../ThemeProvider'; // Import the theme context
 import { MdDelete } from "react-icons/md";
+import Select from 'react-select'; 
+import { toast } from 'sonner'
 
-const CreateWorkout = () => {
+const EditWorkout = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { appearance } = useTheme(); // Get the current theme (light or dark)
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(2); // Set the number of items per page
+    const { call, db } = useContext(FrappeContext) as FrappeConfig
+    const { currentUser } = useFrappeAuth()
+    const [companyOptions, setCompanyOptions] = useState([]); 
+    const [gymEquipmentOptions, setGymEquipmentOptions] = useState([]); 
+    const [authorOptions, setAuthorOptions] = useState([]);
+    const [categoryOptions, setCategoryOptions] = useState([]);
+    const [targetedMuscleOptions, setTargetedMuscleOptions] = useState([]);
+    const [exerciseListOptions, setExerciseListOptions] = useState([]);
+    const { upload, error, loading, progress, isCompleted, reset } = useFrappeFileUpload();
+    const [file, setFile] = useState<File>();
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files[0];
+        if (file && workoutForm?.workoutName) {
+          upload(file, {
+            isPrivate: false,
+            doctype: "Workout Master",
+            docname: workoutForm.workoutName
+          })
+          .then((r) => {
+            console.log(r.file_url);
+            // Reset the state of the hook
+            reset();
+          });
+        }
+      };
+ 
 
     const [workoutForm, setWorkoutForm] = useState({
-        workoutName: '',
+        workoutName: 'Leg Workout',
         company: '',
         category: '',
         description: '',
         duration: '',
-        targetedMuscleGroup: '',
-        equipments: '',
-        difficultyLevel: '',
+        targetedMuscleGroup: [],
+        equipments: [],
+        difficultyLevel: 'Beginner',
         notes: '',
         benefits: '',
         author: '',
@@ -56,13 +86,47 @@ const CreateWorkout = () => {
         setExerciseList(updatedExerciseList);
     };
 
-    // Handle file change for thumbnail and support video
-    const handleFileChange = (index: number, e: any) => {
-        const { name, files } = e.target;
-        const updatedExerciseList = [...exerciseList];
-        updatedExerciseList[index][name] = files[0]; // Assign the selected file
-        setExerciseList(updatedExerciseList);
-    };
+
+const handleFileChange = (index: number, e: any) => {
+    const { name, files } = e.target;
+    const updatedExerciseList = [...exerciseList];
+    
+    if (name === "thumbnail") {
+       const toastId = toast.loading('uploading thubnail');
+        const file = files[0];
+        setFile(file);  // Set the selected file for upload
+        if (file && workoutForm?.workoutName) {
+            upload(file, {
+                isPrivate: false,
+                doctype: "Workout Master",
+                docname: workoutForm.workoutName,
+            }).then((r) => {
+                updatedExerciseList[index][name] = r.file_url; 
+                setExerciseList(updatedExerciseList);
+                toast.dismiss(toastId)
+                reset(); 
+            });
+        }
+    } else if (name === "supportVideo") {
+        const toastId = toast.loading('uploading Video');
+        const file = files[0];
+        setFile(file);
+        if (file && workoutForm?.workoutName) {
+            upload(file, {
+                isPrivate: false,
+                doctype: "Workout Master",
+                docname: workoutForm.workoutName,
+            }).then((r) => {
+                updatedExerciseList[index][name] = r.file_url; 
+                setExerciseList(updatedExerciseList);
+                toast.dismiss(toastId)
+                reset(); 
+            });
+        }
+    }
+
+    setExerciseList(updatedExerciseList);
+};
 
     // Add new exercise
     const addExercise = () => {
@@ -87,6 +151,134 @@ const CreateWorkout = () => {
         setExerciseList(updatedExerciseList);
     };
 
+    const generateRandomString = (length = 10) => {
+        const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    };
+    const SubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();  
+        console.log(workoutForm);
+        console.log(exerciseList);
+        const randomName = `new-workout-master-${generateRandomString()}`;
+        const targetedMuscles = workoutForm?.targetedMuscleGroup?.map((muscle: any) => ({
+            "doctype": "Workout Group",
+            "muscle": muscle?.value,
+        }));
+        const selectedEquipments = workoutForm?.equipments?.map((eqp: any) => ({
+           "doctype": "Equipment Group",
+           "equipment_name": eqp?.value
+        }));
+
+        const selectedExerciseList = exerciseList?.map((exer: any) => ({
+           "doctype": "Exercise List",
+                    "exercise_name": exer?.exerciseName,
+                    "sets": exer?.sets,
+                    "reps": exer?.reps,
+                    "weight": exer?.weight,
+                    "rest": exer?.rest,
+                    "thumbnail": exer?.thumbnail,
+                    "support_video": exer?.supportVideo
+         }));
+         const data = {
+            "docstatus": 0,
+            "doctype": "Workout Master",
+            "name": randomName,
+            "owner": currentUser,
+            "targeted_muscle_group": targetedMuscles,
+            "company": workoutForm?.company?.value,
+            "equipments": selectedEquipments,
+            "difficulty_level": workoutForm?.difficultyLevel,
+            "exercise_list": selectedExerciseList ,
+            "visibility": workoutForm?.visibility,
+            "workout_name":workoutForm?.workoutName,
+            "category": workoutForm?.category?.value,
+            "duration": workoutForm?.duration,
+            "description": workoutForm?.description,
+            "notesinstructions": workoutForm?.notes,
+            "benifites": workoutForm?.benefits,
+            "creater__author": workoutForm?.author?.value,
+            "creation_date": workoutForm?.creationDate,
+            "overall_rating": workoutForm?.overallRating
+        }
+        console.log(data)
+        db.createDoc('Workout Master', data)
+            .then((doc) => {
+                toast.success("Workout Add successfully")
+            }    )
+            .catch((error) => console.error(error));
+    
+    };
+    
+     // Fetch data for options
+     const fetchCompany = async () => {
+        const searchParams = { doctype: 'Company', txt: '' };
+        call.get('frappe.desk.search.search_link', searchParams)
+            .then((result) => setCompanyOptions(result.message.map((company: any) => ({ label: company.value, value: company.value }))))
+            .catch((error) => console.error(error));
+    };
+
+    const fetchWorkoutCategory = async () => {
+        const searchParamscategory = { doctype: 'Workout Category', txt: '' };
+        call.get('frappe.desk.search.search_link', searchParamscategory)
+            .then((result) => setCategoryOptions(result.message.map((category: any) => ({ label: category.value, value: category.value }))))
+            .catch((error) => console.error(error));
+    };
+
+    const fetchTargetedMuscles = async () => {
+        const searchParams = { doctype: 'Muscle Master', txt: '' };
+        call.get('frappe.desk.search.search_link', searchParams)
+            .then((result) => setTargetedMuscleOptions(result.message.map((muscle: any) => ({ label: muscle.value, value: muscle.value }))))
+            .catch((error) => console.error(error));
+    };
+
+    const fetchGymEquipmentOptions = () => {
+        const searchParams = { doctype: 'Gym Equipment', txt: '' };
+        call.get('frappe.desk.search.search_link', searchParams)
+            .then((result) => setGymEquipmentOptions(result.message.map((equipment: any) => ({ label: equipment.value, value: equipment.value }))))
+            .catch((error) => console.error(error));
+    };
+
+    const fetchAuthor = async () => {
+        const searchParams = { doctype: 'User', txt: '' };
+        call.get('frappe.desk.search.search_link', searchParams)
+            .then((result) => setAuthorOptions(result.message.map((author: any) => ({ label: author.value, value: author.value }))))
+            .catch((error) => console.error(error));
+    };
+
+    const fetchExerciseList = async () => {
+        const searchParams = { doctype: 'Exercise Name Master', txt: '' };
+        call.get('frappe.desk.search.search_link', searchParams)
+            .then((result) => setExerciseListOptions(result.message.map((exercise: any) => ({ label: exercise.value, value: exercise.value }))))
+            .catch((error) => console.error(error));
+    };
+
+
+    
+
+    const handleSelectChange = (name: string, selectedOption: any) => {
+        setWorkoutForm((prev) => ({ ...prev, [name]: selectedOption }));
+    };
+
+    // Handle react-select multi-select change
+    const handleMultiSelectChange = (name: string, selectedOptions: any) => {
+        setWorkoutForm((prev) => ({ ...prev, [name]: selectedOptions || [] }));
+    };
+
+
+    useEffect(() => {
+        fetchCompany();
+        fetchWorkoutCategory();
+        fetchTargetedMuscles();
+        fetchGymEquipmentOptions();
+        fetchAuthor();
+        fetchExerciseList()
+    }, []);
+
+
     return (
         <>
             <PageHeader>
@@ -94,13 +286,13 @@ const CreateWorkout = () => {
                     <Link to="/channel" className="block bg-transparent hover:bg-transparent active:bg-transparent sm:hidden">
                         <BiChevronLeft size="24" className="block text-gray-12" />
                     </Link>
-                    <Heading size="5">Create Workouts</Heading>
+                    <Heading size="5">Edit Workouts</Heading>
                 </Flex>
             </PageHeader>
 
             {/* Workout Form */}
             <div className="mx-10 my-20">
-                <form className="space-y-6">
+                <form onSubmit={SubmitHandler} className="space-y-6">
                     {/* Flex container for fields */}
                     <Flex className="flex-wrap gap-4">
                         <label className="flex-1 mr-4 min-w-[250px]">
@@ -116,27 +308,81 @@ const CreateWorkout = () => {
                         </label>
                         <label className="flex-1 min-w-[250px]">
                             Company
-                            <input
-                                type="text"
-                                name="company"
+                            <Select
                                 value={workoutForm.company}
-                                onChange={handleInputChange}
-                                placeholder="Company"
-                                className="border px-2 py-4 rounded-lg w-full"
+                                onChange={(selectedOption) => handleSelectChange("company", selectedOption)}
+                                options={companyOptions}
+                                placeholder="Select Company"
+                                styles={{
+                                    control: (baseStyles, state) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        '&:hover': {
+                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                        },
+                                    }),
+                                    menu: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    option: (baseStyles, { isFocused }) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    singleValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    input: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                }}
                             />
                         </label>
                     </Flex>
 
                     <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
+                    <label className="flex-1 mr-4 min-w-[250px]">
                             Category
-                            <input
-                                type="text"
-                                name="category"
+                            <Select
                                 value={workoutForm.category}
-                                onChange={handleInputChange}
-                                placeholder="Category"
-                                className="border px-2 py-4 rounded-lg w-full"
+                                onChange={(selectedOption) => handleSelectChange("category", selectedOption)}
+                                options={categoryOptions}
+                                placeholder="Select Category"
+                                styles={{
+                                    control: (baseStyles, state) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        '&:hover': {
+                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                        },
+                                    }),
+                                    menu: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    option: (baseStyles, { isFocused }) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    singleValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    input: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                }}
                             />
                         </label>
                         <label className="flex-1 min-w-[250px]">
@@ -182,17 +428,48 @@ const CreateWorkout = () => {
                         {exerciseList.map((exercise, index) => (
                             <div key={index} className="space-y-4 border-b pb-4 mb-4">
                                 <Flex className="flex-wrap gap-4">
-                                    <label className="flex-1 mr-4 min-w-[250px]">
-                                        Exercise Name
-                                        <input
-                                            type="text"
-                                            name="exerciseName"
-                                            value={exercise.exerciseName}
-                                            onChange={(e) => handleExerciseChange(index, e)}
-                                            placeholder="Exercise Name"
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
+                                <label className="flex-1 mr-4 min-w-[250px]">
+                Exercise Name
+                <Select
+                    value={exerciseListOptions.find((option) => option.value === exercise.exerciseName)}
+                    onChange={(selectedOption) => {
+                        const updatedExerciseList = [...exerciseList];
+                        updatedExerciseList[index].exerciseName = selectedOption.value;
+                        setExerciseList(updatedExerciseList);
+                    }}
+                    options={exerciseListOptions}
+                    placeholder="Select Exercise"
+                    styles={{
+                        control: (baseStyles, state) => ({
+                            ...baseStyles,
+                            backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                            borderColor: state.isFocused ? '#007BFF' : '#444', 
+                            boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                            '&:hover': {
+                                borderColor: state.isFocused ? '#007BFF' : '#666',
+                            },
+                        }),
+                        menu: (baseStyles) => ({
+                            ...baseStyles,
+                            backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                            color: appearance === 'dark' ? '#fff' : '#000',
+                        }),
+                        option: (baseStyles, { isFocused }) => ({
+                            ...baseStyles,
+                            backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
+                            color: appearance === 'dark' ? '#fff' : '#000',
+                        }),
+                        singleValue: (baseStyles) => ({
+                            ...baseStyles,
+                            color: appearance === 'dark' ? '#fff' : '#000',
+                        }),
+                        input: (baseStyles) => ({
+                            ...baseStyles,
+                            color: appearance === 'dark' ? '#fff' : '#000',
+                        }),
+                    }}
+                />
+            </label>
                                     <label className="flex-1 min-w-[250px]">
                                         Sets
                                         <input
@@ -291,39 +568,115 @@ const CreateWorkout = () => {
                     <Flex className="flex-wrap gap-4">
                         <label className="flex-1 mr-4 min-w-[250px]">
                             Targeted Muscle Group
-                            <input
-                                type="text"
-                                name="targetedMuscleGroup"
+                            <Select
+                                isMulti
                                 value={workoutForm.targetedMuscleGroup}
-                                onChange={handleInputChange}
-                                placeholder="Targeted Muscle Group"
-                                className="border px-2 py-4 rounded-lg w-full"
+                                onChange={(selectedOptions) => handleMultiSelectChange("targetedMuscleGroup", selectedOptions)}
+                                options={targetedMuscleOptions}
+                                placeholder="Select Targeted Muscle Group"
+                                styles={{
+                                    control: (baseStyles, state) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        '&:hover': {
+                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                        },
+                                    }),
+                                    menu: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    option: (baseStyles, { isFocused }) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    multiValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#444' : '#ddd',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    multiValueLabel: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    singleValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    input: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                }}
                             />
                         </label>
                         <label className="flex-1 min-w-[250px]">
                             Equipments
-                            <input
-                                type="text"
-                                name="equipments"
+                            <Select
+                                isMulti
                                 value={workoutForm.equipments}
-                                onChange={handleInputChange}
-                                placeholder="Equipments"
-                                className="border px-2 py-4 rounded-lg w-full"
+                                onChange={(selectedOptions) => handleMultiSelectChange("equipments", selectedOptions)}
+                                options={gymEquipmentOptions}
+                                placeholder="Select Equipments"
+                                styles={{
+                                    control: (baseStyles, state) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        '&:hover': {
+                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                        },
+                                    }),
+                                    menu: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    option: (baseStyles, { isFocused }) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    multiValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#444' : '#ddd',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    multiValueLabel: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    singleValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    input: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                }}
                             />
                         </label>
                     </Flex>
 
                     <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
+                    <label className="flex-1 mr-4 min-w-[250px]">
                             Difficulty Level
-                            <input
-                                type="text"
+                            <select
                                 name="difficultyLevel"
                                 value={workoutForm.difficultyLevel}
                                 onChange={handleInputChange}
-                                placeholder="Difficulty Level"
                                 className="border px-2 py-4 rounded-lg w-full"
-                            />
+                            >
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
                         </label>
                         <label className="flex-1 min-w-[250px]">
                             Benefits
@@ -339,15 +692,51 @@ const CreateWorkout = () => {
                     </Flex>
 
                     <Flex className="flex-wrap  gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
+                    <label className="flex-1 mr-4 min-w-[250px]">
                             Author
-                            <input
-                                type="text"
-                                name="author"
+                            <Select
                                 value={workoutForm.author}
-                                onChange={handleInputChange}
-                                placeholder="Author"
-                                className="border px-2 py-4 rounded-lg w-full"
+                                onChange={(selectedOption) => handleSelectChange("author", selectedOption)}
+                                options={authorOptions}
+                                placeholder="Select Author"
+                                styles={{
+                                    control: (baseStyles, state) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        '&:hover': {
+                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                        },
+                                    }),
+                                    menu: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    option: (baseStyles, { isFocused }) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    multiValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: appearance === 'dark' ? '#444' : '#ddd',
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    multiValueLabel: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    singleValue: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                    input: (baseStyles) => ({
+                                        ...baseStyles,
+                                        color: appearance === 'dark' ? '#fff' : '#000',
+                                    }),
+                                }}
                             />
                         </label>
                         <label className="flex-1 min-w-[250px]">
@@ -368,13 +757,13 @@ const CreateWorkout = () => {
                         <label className="flex-1 mr-4 min-w-[250px]">
                             Creation Date
                             <input
-                                type="text"
+                                type="date"
                                 name="creationDate"
                                 value={workoutForm.creationDate}
                                 onChange={handleInputChange}
                                 placeholder="Creation Date"
                                 className="border px-2 py-4 rounded-lg w-full"
-                                disabled
+                               
                             />
                         </label>
                         <label className="flex-1 min-w-[250px]">
@@ -390,11 +779,11 @@ const CreateWorkout = () => {
                         </label>
                     </Flex>
 
-                    <button className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900' >Save</button>
+                    <button type='submit' className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900' >Save</button>
                 </form>
             </div>
         </>
     );
 };
 
-export const Component = CreateWorkout;
+export const Component = EditWorkout;
