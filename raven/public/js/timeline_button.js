@@ -164,7 +164,7 @@ $(document).on('app_ready', function () {
                 let dialog;
                 if (!dialog) {
                   dialog = new frappe.ui.Dialog({
-                    title: __('Send a Raven'),
+                    title: __('Send a redeeChat'),
                     fields: [
                       {
                         fieldname: 'type',
