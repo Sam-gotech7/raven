@@ -17,20 +17,22 @@ export const SettingsSidebar = () => {
             <Flex direction="column" gap='2' className='px-4'>
                 <SettingsGroup title="My Account" icon={LuUserCircle2}>
                     <SettingsSidebarItem title="Profile" to='profile' />
-                    {/* <SettingsSidebarItem title="Preferences" to='preferences' /> */}
+                    <SettingsSidebarItem title="Personal Details" to='personaldetails' />
+                    <SettingsSidebarItem title="Appoinment Details" to='appoinmentdetails' />
+                   
                 </SettingsGroup>
-                <SettingsSeparator />
-                <SettingsGroup title="Workspace" icon={BiBuildings}>
+                {/* <SettingsSeparator /> */}
+                {/* <SettingsGroup title="Workspace" icon={BiBuildings}>
                     <SettingsSidebarItem title="Users" to='users' />
-                    {/* <SettingsSidebarItem title="Bots" to='bots' /> */}
+                    <SettingsSidebarItem title="Bots" to='bots' />
                 </SettingsGroup>
                 <SettingsSeparator />
                 <SettingsGroup title='Integrations' icon={BsBoxes}>
-                    {/* <SettingsSidebarItem title="ERPNext" to='erpnext' /> */}
+                    <SettingsSidebarItem title="ERPNext" to='erpnext' />
                     <SettingsSidebarItem title="Frappe HR" to='frappe-hr' />
-                    {/* <SettingsSidebarItem title="Frappe LMS" to='frappe-lms' /> */}
-                    {/* <SettingsSidebarItem title="Frappe CRM" to='frappe-crm' /> */}
-                </SettingsGroup>
+                    <SettingsSidebarItem title="Frappe LMS" to='frappe-lms' /> 
+                     <SettingsSidebarItem title="Frappe CRM" to='frappe-crm' />
+                </SettingsGroup> */}
             </Flex>
         </Box>
     )

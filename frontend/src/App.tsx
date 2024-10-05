@@ -10,6 +10,8 @@ import { Toaster } from 'sonner'
 import { useStickyState } from './hooks/useStickyState'
 import MobileTabsPage from './pages/MobileTabsPage'
 import { UserProfile } from './components/feature/userSettings/UserProfile/UserProfile'
+import { AppointmentDetails } from './components/feature/userSettings/UserProfile/AppoinmentDetails'
+import { PersonalDetails } from './components/feature/userSettings/UserProfile/PersonalDetails'
 
 
 const router = createBrowserRouter(
@@ -37,6 +39,8 @@ const router = createBrowserRouter(
             <Route path="settings" lazy={() => import('./pages/settings/Settings')}>
               <Route index element={<UserProfile />} />
               <Route path="profile" element={<UserProfile />} />
+              <Route path="appoinmentdetails" element={<AppointmentDetails />} />
+              <Route path="personaldetails" element={<PersonalDetails />} />
               <Route path="users" lazy={() => import('./components/feature/userSettings/Users/AddUsers')} />
               <Route path="frappe-hr" lazy={() => import('./pages/settings/Integrations/FrappeHR')} />
               {/* <Route path="bots" lazy={() => import('./components/feature/userSettings/Bots')} /> */}
