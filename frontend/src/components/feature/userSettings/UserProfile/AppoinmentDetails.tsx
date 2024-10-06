@@ -28,14 +28,14 @@ type UserProfile = {
 export const AppointmentDetails = () => {
   const { myProfile, mutate } = useCurrentRavenUser();
   const [appointmentEnabled, setAppointmentEnabled] = useState(true);
-  const [duration, setDuration] = useState(30);
-  const [holidayList, setHolidayList] = useState();
+  const [duration, setDuration] = useState(0);
+  const [holidayList, setHolidayList] = useState('');
   const [slots, setSlots] = useState<Slot[]>([{ day: "", startTime: "", endTime: "" }]);
   const { appearance } = useTheme();
   const { currentUser } = useFrappeAuth()
-  const [instructorId, setInstructorId] = useState(null);
+  const [instructorId, setInstructorId] = useState('');
+  const { data: profileDta } = useFrappeGetDoc('Instructor', instructorId);
   const { call,db } = useContext(FrappeContext) as FrappeConfig;
-
   const handleAppointmentToggle = () => {
     setAppointmentEnabled((prev) => !prev);
   };
@@ -54,13 +54,52 @@ export const AppointmentDetails = () => {
   };
 
   const updateSlot = (index: number, key: keyof Slot, value: string) => {
-    const updatedSlots = slots.map((slot, i) => (i === index ? { ...slot, [key]: value } : slot));
+    const updatedSlots = slots?.map((slot, i) => (i === index ? { ...slot, [key]: value } : slot));
     setSlots(updatedSlots);
   };
 
   const handleHolidayListChange = (selectedOption: any) => {
     setHolidayList(selectedOption);
   };
+
+  useEffect(() => {
+    if (profileDta) {
+      // Check if values exist in profileDta and set state accordingly
+      if (profileDta.enable_appointment_scheduling !== undefined) {
+        setAppointmentEnabled(profileDta.enable_appointment_scheduling === 1);
+      }
+      if (profileDta.appointment_duration) {
+        setDuration(profileDta.appointment_duration);
+      }
+      if (profileDta.holiday_list) {
+        setHolidayList(profileDta.holiday_list);
+      }
+      if (profileDta && profileDta.weekly_schedule) {
+        // Format the time to ensure it's in "HH:MM:SS" format
+        const formattedSlots = profileDta.weekly_schedule.map((slot: any) => {
+          const formatTime = (time: string) => {
+            // If time is already in HH:MM:SS format, return it as is
+            // Otherwise, append ':00' to make it HH:MM:SS
+            return time.length === 5 ? `${time}:00` : time;
+          };
+    
+          return {
+            day: slot.day,
+            startTime: formatTime(slot.from_time),  // Ensure time is in HH:MM:SS format
+            endTime: formatTime(slot.to_time),      // Ensure time is in HH:MM:SS format
+          };
+        });
+
+        setSlots(formattedSlots);
+      }
+    }
+  }, [profileDta]);
+
+  console.log('gjjhhcf',slots)
+
+  if (!profileDta) {
+    return <p>Loading...</p>;
+  }
 
   const methods = useForm<UserProfile>({
     defaultValues: {
@@ -110,7 +149,6 @@ export const AppointmentDetails = () => {
     db.updateDoc('Instructor', instructorId, {
         enable_appointment_scheduling:appointmentEnabled,
         appointment_duration:duration,
-        holiday_list:holidayList,
         weekly_schedule:newSlots
 
       })
@@ -193,52 +231,25 @@ export const AppointmentDetails = () => {
                 justify="between"
               >
                 <Box style={{ flex: 1 }}>
-                  <RadixLabel htmlFor="holidayList">
-                    Holiday List <Text color="red">*</Text>
-                  </RadixLabel>
-                  <Select
-                    id="holidayList"
-                    options={holidayOptions}
-                    defaultValue={holidayList}
-                    onChange={handleHolidayListChange}
-                    styles={{
-                      control: (baseStyles, state) => ({
-                        ...baseStyles,
-                        backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                        borderColor: state.isFocused ? "#007BFF" : "#444",
-                        boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
-                        "&:hover": {
-                          borderColor: state.isFocused ? "#007BFF" : "#666",
-                        },
-                      }),
-                      menu: (baseStyles) => ({
-                        ...baseStyles,
-                        backgroundColor: appearance === "dark" ? "#333" : "#fff",
+                    <RadixLabel htmlFor="holidayList">Holiday List <Text color="red">*</Text></RadixLabel>
+                    <input
+                      type="text"
+                      id="holidayList"
+                      value={holidayList}
+                      readOnly
+                      style={{
+                        width: "98%",
+                        padding: "8px",
+                        border: "1px solid #E5E7EB",
+                        borderRadius: "6px",
+                        backgroundColor: appearance === "dark" ? "#333" : "#f5f5f5",
                         color: appearance === "dark" ? "#fff" : "#000",
-                      }),
-                      option: (baseStyles, { isFocused }) => ({
-                        ...baseStyles,
-                        backgroundColor: isFocused
-                          ? appearance === "dark"
-                            ? "#555"
-                            : "#eee"
-                          : "transparent",
-                        color: appearance === "dark" ? "#fff" : "#000",
-                      }),
-                      singleValue: (baseStyles) => ({
-                        ...baseStyles,
-                        color: appearance === "dark" ? "#fff" : "#000",
-                      }),
-                      input: (baseStyles) => ({
-                        ...baseStyles,
-                        color: appearance === "dark" ? "#fff" : "#000",
-                      }),
-                    }}
-                  />
-                  <Text size="2" color="gray">
-                    Please set Holiday List in Employee Master
-                  </Text>
-                </Box>
+                      }}
+                    />
+                    <Text size="2" color="gray">Please set Holiday List in Employee Master</Text>
+                  </Box>
+
+
   
                 <Box style={{ flex: 1 }}>
                   <RadixLabel htmlFor="appointmentDuration">
@@ -286,7 +297,7 @@ export const AppointmentDetails = () => {
           <Select
             id={`day-${index}`}
             options={dayOptions}
-            defaultValue={dayOptions.find((option) => option.value === slot.day)}
+            value={dayOptions.find((option) => option.value === slot.day)} 
             onChange={(option) => updateSlot(index, "day", option?.value || "Monday")}
             styles={{
               control: (baseStyles, state) => ({

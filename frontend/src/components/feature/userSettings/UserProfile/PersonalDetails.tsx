@@ -6,21 +6,24 @@ import { useFrappeUpdateDoc, FrappeConfig, FrappeContext,useFrappeAuth,useFrappe
 import { toast } from 'sonner'
 
 export const PersonalDetails = () => {
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [yearsOfExperience, setYearsOfExperience] = useState("");
-  const [biography, setBiography] = useState("");
-  const [specialization, setSpecialization] = useState("");
-  const [qualifications, setQualifications] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [experienceLevel, setExperienceLevel] = useState("");
-  const [instructorId, setInstructorId] = useState(null);
+  const [instructorId, setInstructorId] = useState('');
+  const { data: profileDta, error } = useFrappeGetDoc('Instructor', instructorId);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [yearsOfExperience, setYearsOfExperience] = useState('');
+  const [biography, setBiography] = useState('');
+  const [specialization, setSpecialization] = useState('');
+  const [qualifications, setQualifications] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [experienceLevel, setExperienceLevel] = useState('');
+ 
 
   const { call,db } = useContext(FrappeContext) as FrappeConfig;
   const { currentUser } = useFrappeAuth()
   const { appearance } = useTheme();
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
-  const { updateDoc, loading: updatingDoc, error } = useFrappeUpdateDoc()
+  
+ 
 
 
   const fetchInstructorId = async () => {
@@ -50,6 +53,18 @@ export const PersonalDetails = () => {
       fetchInstructorId();
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (profileDta) {
+      setMobileNumber(profileDta.mobile_no || '');
+      setYearsOfExperience(profileDta.yoe || '');
+      setBiography(profileDta.biography || '');
+      setSpecialization(profileDta.specialisation || '');
+      setQualifications(profileDta.qualifications || '');
+      setLicenseNumber(profileDta.license_number || '');
+      setExperienceLevel(profileDta.experience_level || '');
+    }
+  }, [profileDta]);
   const handleSubmit = (event: any) => {
     event.preventDefault();
     db.updateDoc('Instructor', instructorId, {
@@ -66,9 +81,9 @@ export const PersonalDetails = () => {
         .catch((error) => console.error(error));
      };
 
-  
-
-
+     if (!profileDta?.experience_level) {
+      return <p>Loading...</p>;
+    }
   const experienceLevelOptions = [
     { value: "Beginner", label: "Beginner" },
     { value: "Intermediate", label: "Intermediate" },
