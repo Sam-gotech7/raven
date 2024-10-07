@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router-dom'
 import { SetUserAvailabilityMenu } from '@/components/feature/userSettings/AvailabilityStatus/SetUserAvailabilityMenu'
 import { SetCustomStatusModal } from '@/components/feature/userSettings/CustomStatus/SetCustomStatusModal'
 import PushNotificationToggle from '@/components/feature/userSettings/PushNotifications/PushNotificationToggle'
+import { isGymMemberonly } from '@/utils/roles'
+import { useMediaQuery } from 'react-responsive' 
 
 export const SidebarFooter = () => {
 
@@ -23,7 +25,8 @@ export const SidebarFooter = () => {
 
     const { myProfile } = useCurrentRavenUser()
     const isActive = useIsUserActive(userData.name)
-
+    const isMobile = useMediaQuery({ maxWidth: 767 }) 
+    const isGymMemberUser = isGymMemberonly()
     const navigate = useNavigate()
 
     return (
@@ -57,11 +60,17 @@ export const SidebarFooter = () => {
                                     <BsEmojiSmile size='14' /> Set custom status
                                 </DropdownMenu.Item>
                                 <PushNotificationToggle />
-                                <DropdownMenu.Separator />
-                                <DropdownMenu.Item color='red' className={'flex justify-normal gap-2'} onClick={logout}>
-                                    <MdOutlineExitToApp size='14' />Log Out
-                                </DropdownMenu.Item>
+                               
+                                {!isGymMemberUser || !isMobile ? (
+                                    <>
+                                        <DropdownMenu.Separator />
+                                        <DropdownMenu.Item color='red' className={'flex justify-normal gap-2'} onClick={logout}>
+                                            <MdOutlineExitToApp size='14' /> Log Out
+                                        </DropdownMenu.Item>
+                                    </>
+                                ) : null}
                             </DropdownMenu.Content>
+    
                         </DropdownMenu.Root>
                     </Flex>
                 </Flex>

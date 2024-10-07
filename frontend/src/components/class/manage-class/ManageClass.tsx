@@ -1,7 +1,7 @@
 import { useDebounce } from "@/hooks/useDebounce"
 import { usePaginationWithDoctype } from "@/hooks/usePagination"
 import { User } from "@/types/Core/User"
-import { Filter, useFrappeGetDocList, useFrappePostCall, useSWRConfig } from "frappe-react-sdk"
+import { Filter, useFrappeGetDocList, useFrappePostCall, useSWRConfig ,useFrappeAuth} from "frappe-react-sdk"
 import { ChangeEvent, useContext, useState } from "react"
 import { ErrorBanner } from "@/components/layout/AlertBanner"
 import { TableLoader } from "@/components/layout/Loaders/TableLoader"
@@ -11,12 +11,12 @@ import { Loader } from "@/components/common/Loader"
 import { BiSearch } from "react-icons/bi"
 import { ErrorCallout } from "@/components/common/Callouts/ErrorCallouts"
 import { toast } from "sonner"
-import { Sort } from "../../sorting"
-import { PageLengthSelector } from "../../pagination/PageLengthSelector"
-import { PageSelector } from "../../pagination/PageSelector"
-import { UsersTable } from "./UsersTable"
+import { Sort } from "../../feature/sorting"
+import { PageLengthSelector } from "../../feature/pagination/PageLengthSelector"
+import { PageSelector } from "../../feature/pagination/PageSelector"
+import { UsersTable } from "./ClassTable"
 import { isSystemManager } from "@/utils/roles"
-
+import { useNavigate } from "react-router-dom";
 interface AddUsersResponse {
     failed_users: User[],
     success_users: User[]
@@ -24,23 +24,23 @@ interface AddUsersResponse {
 
 const AddUsers = () => {
 
-    console.log(isSystemManager)
-
     const { mutate } = useSWRConfig()
+    const { currentUser } = useFrappeAuth()
+
     const [searchText, setSearchText] = useState("")
     const debouncedText = useDebounce(searchText, 200)
-
+    const navigate = useNavigate(); 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         setSearchText(event.target.value)
     }
 
-    const filters: Filter[] = [['enabled', '=', 1], ['name', 'not in', ['Guest', 'Administrator']], ['full_name', 'like', `%${debouncedText}%`]]
-
-    const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("User", 10, filters)
+    const filters: Filter[] = [['class_title', 'like', `%${debouncedText}%`],['owner', '=', `${currentUser}`]]
+    const { start, count, selectedPageLength, setPageLength, nextPage, previousPage } = usePaginationWithDoctype("Classes", 10,filters)
     const [sortOrder, setSortOder] = useState<"asc" | "desc">("desc")
+   
 
-    const { data, error } = useFrappeGetDocList<User>("User", {
-        fields: ["name", "full_name", "user_image", "creation", "enabled", "user_type", "role_profile_name"],
+    const { data, error } = useFrappeGetDocList("Classes", {
+        fields: ['class_title','class_description','creation', 'name','owner'],
         filters,
         orderBy: {
             field: 'creation',
@@ -50,60 +50,37 @@ const AddUsers = () => {
         limit: selectedPageLength
     })
 
+    console.log(data)
+    console.log(error)
     const users = useContext(UserListContext)
     const ravenUsersArray = users.enabledUsers.map(user => user.name)
 
     const [selected, setSelected] = useState<string[]>([])
-    const { loading, call, error: postError } = useFrappePostCall<{ message: AddUsersResponse }>('raven.api.raven_users.add_users_to_raven')
-
     const [failedUsers, setFailedUsers] = useState<User[]>([])
 
-    const handleAddUsers = async () => {
-        setFailedUsers([])
-        if (selected.length > 0) {
-
-            call({
-                users: JSON.stringify(selected)
-            }).then((res) => {
-                if (res.message.success_users.length !== 0) {
-                    toast.success(`You have added ${res.message.success_users.length} users to Raven`)
-                }
-
-                mutate('raven.api.raven_users.get_list')
-
-                if (res.message.failed_users.length === 0) {
-                    setSelected([])
-                } else {
-                    setFailedUsers(res.message.failed_users)
-                    setSelected(s => s.filter(user => res.message.failed_users.map(u => u.name).includes(user)))
-                }
-            })
-        }
-    }
-
-    const canAddRavenUsers = isSystemManager()
+ 
 
     return (
         <Flex direction='column' gap='4' px='6' py='4'>
 
             <Flex justify='between' align='center'>
                 <Flex direction='column' gap='0'>
-                    <Text size='3' className={'font-semibold'}>Add users to Raven</Text>
-                    <Text size='1' color='gray'>Only System managers have the ability to add users; users you add will be given the <Strong>"Raven User"</Strong> role.</Text>
+                    <Text size='3' className={'font-semibold'}>Manage Class</Text>
+                    <Text size='1' color='gray'></Text>
                 </Flex>
-                <Button type='button' disabled={loading || !canAddRavenUsers} onClick={handleAddUsers}>
-                    {loading && <Loader />}
-                    {loading ? "Adding" : "Add"}
+                <Button type='button' className="cursor-pointer" onClick={()=>{navigate("/channel/class/create");}}>
+                    
+                   Add
                 </Button>
             </Flex>
 
             <Flex direction='column' gap='4'>
-                <Flex justify='between' gap='2'>
+                <Flex wrap='wrap' justify='between' gap='2'>
                     <Flex gap='2' align='center'>
                         <TextField.Root onChange={handleChange}
-                            className='w-[24rem]'
-                            type='text'
-                            placeholder='Search for user'>
+            className='375:w-[19rem] 400:w-[20rem] 425:w-[22rem] 450:w-[24rem] w-[22rem]'
+            type='text'
+                            placeholder='Search for Class'>
                             <TextField.Slot side='left'>
                                 <BiSearch />
                             </TextField.Slot>
@@ -115,7 +92,7 @@ const AddUsers = () => {
                             sortOrder={sortOrder}
                             onSortOrderChange={(order) => setSortOder(order)} />
                         <PageLengthSelector
-                            options={[10, 20, 50, 100]}
+                            options={[2,10, 20, 50, 100]}
                             selectedValue={selectedPageLength}
                             updateValue={(value) => setPageLength(value)} />
                         <PageSelector
@@ -128,16 +105,7 @@ const AddUsers = () => {
                 </Flex>
 
                 <ErrorBanner error={error} />
-                <ErrorBanner error={postError} />
-                {failedUsers.length > 0 && <ErrorCallout>
-                    Could not add the following users to Raven since they have a <Strong>Role Profile</Strong> attached.<br />
-                    Please remove the role profile and try again.<br /><br />
-
-                    <ol className="pl-4">
-                        {failedUsers.map((user, i) => <li key={i}><Text as='span'><Strong>{user.full_name}</Strong> - {user.email}</Text></li>)}
-                    </ol>
-
-                </ErrorCallout>}
+               
                 {!data && !error && <TableLoader columns={3} />}
 
                 {data && data.length === 0 && debouncedText.length >= 2 &&

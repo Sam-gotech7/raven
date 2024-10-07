@@ -29,7 +29,7 @@ const Header = ({
                 alignItems: 'center',
                 gap: '0.2rem',
             }}>
-                <span role='button' className="raven-logo cal-sans" onClick={toggle}>raven</span>
+                <span role='button' className="raven-logo cal-sans" onClick={toggle}>redeeChat</span>
 
                 <a href='/raven' target='_blank' className='btn btn-xs open-raven-button' style={{
                     lineHeight: '1.4rem',
@@ -39,7 +39,7 @@ const Header = ({
                     justifyContent: 'center',
                     // height: "24px",
                     // marginTop: '0.2rem',
-                }} title='Open Raven'>
+                }} title='Open redeeChat'>
                     <svg
                         width="18"
                         height="18"
@@ -88,7 +88,7 @@ const ChannelHeader = ({ channelID, onBackClick }) => {
         </button>
 
         {channel?.is_direct_message ? <DMChannelHeader channel={channel} /> :
-            <a href={`/raven/channel/${channelID}`} target="_blank" title="Open channel in Raven">
+            <a href={`/raven/channel/${channelID}`} target="_blank" title="Open channel in redeeChat">
                 <ChannelIcon channelType={channel?.channel_type} />
                 <span className="raven-channel-header-name cal-sans">{channel?.channel_name ?? channelID}</span>
             </a>
@@ -100,7 +100,7 @@ const ChannelHeader = ({ channelID, onBackClick }) => {
 const DMChannelHeader = ({ channel }) => {
 
     const user = useGetUser(channel.peer_user_id)
-    return <a title="Open channel in Raven" className="raven-dm-channel-header" href={`/raven/channel/${channel.name}`} target="_blank">
+    return <a title="Open channel in redeeChat" className="raven-dm-channel-header" href={`/raven/channel/${channel.name}`} target="_blank">
         <Avatar user={user} fallback={channel.peer_user_id} />
         <span className="raven-channel-header-name cal-sans">{user?.full_name ?? user?.name}</span>
     </a>

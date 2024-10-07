@@ -4,13 +4,19 @@ import { SidebarItem } from './SidebarComp'
 import { AccessibleIcon, Box, Flex, ScrollArea, Text } from '@radix-ui/themes'
 import useUnreadMessageCount from '@/hooks/useUnreadMessageCount'
 import PinnedChannels from './PinnedChannels'
-import React from 'react'
+import React, { useState } from 'react'
 import { BiMessageAltDetail } from 'react-icons/bi'
 import { LuBookmark } from 'react-icons/lu'
+import { MdSportsGymnastics } from "react-icons/md";
+import { LuBookOpen } from "react-icons/lu";
+import { isGymMemberonly } from '@/utils/roles'
+
 
 export const SidebarBody = () => {
+    const [isMember, setMember] = useState(false);
 
     const unread_count = useUnreadMessageCount()
+    const isGymMemberUser = isGymMemberonly()
 
     return (
         <ScrollArea type="hover" scrollbars="vertical" className='h-[calc(100vh-7rem)]'>
@@ -26,6 +32,21 @@ export const SidebarBody = () => {
                         label='Saved'
                         icon={<LuBookmark className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Saved Message' />
+                        { !isGymMemberUser ? (
+                        <>
+                            <SidebarItemForPage
+                                to={'workout'}
+                                label='Workout'
+                                icon={<MdSportsGymnastics className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                                iconLabel='Workout' />
+                            <SidebarItemForPage
+                                to={'class'}
+                                label='Class'
+                                icon={<LuBookOpen className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                                iconLabel='Class' />
+                        </>
+                    ) : null}
+                        
                     <PinnedChannels unread_count={unread_count?.message} />
                 </Flex>
                 <ChannelList unread_count={unread_count?.message} />
