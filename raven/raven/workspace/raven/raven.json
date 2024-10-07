@@ -80,9 +80,58 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "AI",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bots",
+   "link_count": 0,
+   "link_to": "Raven Bot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Functions",
+   "link_count": 0,
+   "link_to": "Raven AI Function",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Instruction Templates",
+   "link_count": 0,
+   "link_to": "Raven Bot Instruction Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Saved Prompts",
+   "link_count": 0,
+   "link_to": "Raven Bot AI Prompt",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-10-04 01:13:23.208410",
+ "modified": "2024-06-13 20:18:44.203529",
  "modified_by": "Administrator",
  "module": "Raven",
  "name": "Raven",
