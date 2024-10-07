@@ -18,6 +18,8 @@ const NO_CACHE_KEYS = [
   "frappe.model.workflow.get_transitions",
   "frappe.desk.reportview.get_count"
 ]
+import { AppointmentDetails } from './components/feature/userSettings/UserProfile/AppoinmentDetails'
+import { PersonalDetails } from './components/feature/userSettings/UserProfile/PersonalDetails'
 
 
 const router = createBrowserRouter(
@@ -35,9 +37,18 @@ const router = createBrowserRouter(
               <Route path="thread/:threadID" lazy={() => import('./components/feature/threads/ThreadDrawer/ThreadDrawer')} />
             </Route>
             <Route path="saved-messages" lazy={() => import('./components/feature/saved-messages/SavedMessages')} />
+            <Route path="workout" lazy={() => import('./components/workout/manage-workout/ManageWorkout')} />
+            <Route path="workout/create" lazy={() => import('./components/workout/CreateWorkout')} />
+            <Route path="workout/:id" lazy={() => import('./components/workout/CreateWorkout')} />
+            <Route path="workout/edit/:id" lazy={() => import('./components/workout/EditWorkout')} />
+            <Route path="class" lazy={() => import('./components/class/manage-class/ManageClass')} />
+            <Route path="class/create" lazy={() => import('./components/class/CreateClass')} />
+            <Route path="class/edit/:id" lazy={() => import('./components/class/EditClass')} />
             <Route path="settings" lazy={() => import('./pages/settings/Settings')}>
               <Route index lazy={() => import('./components/feature/userSettings/UserProfile/UserProfile')} />
               <Route path="profile" lazy={() => import('./components/feature/userSettings/UserProfile/UserProfile')} />
+              <Route path="appoinmentdetails" element={<AppointmentDetails />} />
+              <Route path="personaldetails" element={<PersonalDetails />} />
               <Route path="users" lazy={() => import('./components/feature/userSettings/Users/AddUsers')} />
               <Route path="hr" lazy={() => import('./pages/settings/Integrations/FrappeHR')} />
               <Route path="bots" >

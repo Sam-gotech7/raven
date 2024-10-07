@@ -6,6 +6,16 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        '375': '375px',
+        '400': '400px',
+        '425': '425px',
+        '450': '450px',
+        '475': '475px',
+        '500': '500px',
+        '600': '600px',
+        '650': '650px',
+      },
       colors: {
         background: 'var(--color-background)',
         overlay: 'var(--color-overlay)',

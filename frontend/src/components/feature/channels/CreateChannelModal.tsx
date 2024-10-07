@@ -14,6 +14,7 @@ import { useIsDesktop } from '@/hooks/useMediaQuery'
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/layout/Drawer'
 import { __ } from '@/utils/translations'
 
+import { isGymMemberonly } from '@/utils/roles'
 interface ChannelCreationForm {
     channel_name: string,
     channel_description: string,
@@ -23,17 +24,17 @@ interface ChannelCreationForm {
 export const CreateChannelButton = ({ updateChannelList }: { updateChannelList: VoidFunction }) => {
 
     const [isOpen, setIsOpen] = useState(false)
-
+    const isGymMemberUser = isGymMemberonly()
     const isDesktop = useIsDesktop()
-
+console.log(isGymMemberUser)
     if (isDesktop) {
         return <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-            <Dialog.Trigger>
+          { !isGymMemberUser && <Dialog.Trigger>
                 <IconButton variant='soft' size='1' radius='large' color='gray' aria-label='Create Channel' title='Create Channel'
                     className='sm:group-hover:visible sm:invisible transition-all ease-ease text-gray-10 dark:text-gray-300 bg-transparent hover:bg-gray-3'>
                     <FiPlus size='16' />
                 </IconButton>
-            </Dialog.Trigger>
+            </Dialog.Trigger>}
             <Dialog.Content className={DIALOG_CONTENT_CLASS}>
                 <CreateChannelContent updateChannelList={updateChannelList}
                     isOpen={isOpen}
@@ -42,13 +43,14 @@ export const CreateChannelButton = ({ updateChannelList }: { updateChannelList: 
         </Dialog.Root>
     } else {
         return <Drawer open={isOpen} onOpenChange={setIsOpen}>
-
+{ !isGymMemberUser && 
             <DrawerTrigger asChild>
                 <IconButton variant='soft' size='1' radius='large' color='gray' aria-label='Create Channel' title='Create Channel'
                     className='sm:group-hover:visible sm:invisible transition-all ease-ease text-gray-10 dark:text-gray-300 bg-transparent hover:bg-gray-3'>
                     <FiPlus size='16' />
                 </IconButton>
             </DrawerTrigger>
+    }
             <DrawerContent>
                 <div className='pb-16 overflow-y-scroll min-h-96'>
                     <CreateChannelContent updateChannelList={updateChannelList}
