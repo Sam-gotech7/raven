@@ -81,7 +81,7 @@ export const PersonalDetails = () => {
         .catch((error) => console.error(error));
      };
 
-     if (!profileDta?.experience_level) {
+     if (!profileDta) {
       return <p>Loading...</p>;
     }
   const experienceLevelOptions = [
