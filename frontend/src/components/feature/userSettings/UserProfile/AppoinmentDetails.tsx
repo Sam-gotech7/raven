@@ -1,6 +1,6 @@
 import { ErrorText, Label } from "@/components/common/Form";
 import { Loader } from "@/components/common/Loader";
-import { Box, Button, Flex, Text, Card } from "@radix-ui/themes";
+import { Box, Button, Flex, Text, Card ,  TextField,TextArea} from "@radix-ui/themes";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { Label as RadixLabel } from "@radix-ui/react-label";
 import { FiCheck, FiClock, FiPlus, FiTrash } from "react-icons/fi"; 
@@ -152,7 +152,7 @@ export const AppointmentDetails = () => {
         weekly_schedule:newSlots
 
       })
-        .then((doc) => console.log(doc))
+        .then((doc) => toast.success('Appointment Updated Successfully'))
         .catch((error) => console.error(error));
   };
 
@@ -231,20 +231,12 @@ export const AppointmentDetails = () => {
                 justify="between"
               >
                 <Box style={{ flex: 1 }}>
-                    <RadixLabel htmlFor="holidayList">Holiday List <Text color="red">*</Text></RadixLabel>
-                    <input
+                <Label htmlFor="holidayList" isRequired>Holiday List</Label>
+                    <TextField.Root
                       type="text"
                       id="holidayList"
                       value={holidayList}
                       readOnly
-                      style={{
-                        width: "98%",
-                        padding: "8px",
-                        border: "1px solid #E5E7EB",
-                        borderRadius: "6px",
-                        backgroundColor: appearance === "dark" ? "#333" : "#f5f5f5",
-                        color: appearance === "dark" ? "#fff" : "#000",
-                      }}
                     />
                     <Text size="2" color="gray">Please set Holiday List in Employee Master</Text>
                   </Box>
@@ -252,21 +244,13 @@ export const AppointmentDetails = () => {
 
   
                 <Box style={{ flex: 1 }}>
-                  <RadixLabel htmlFor="appointmentDuration">
-                    Duration <Text color="red">*</Text>
-                  </RadixLabel>
-                  <input
+                  <Label htmlFor="appointmentDuration" isRequired>Duration</Label>
+
+                  <TextField.Root
                     type="number"
                     id="appointmentDuration"
                     value={duration}
                     onChange={handleDurationChange}
-                    style={{
-                      width: "98%",
-                      padding: "8px",
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "6px",
-                      backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                    }}
                   />
                   <Text size="2" color="gray">
                     In Minutes
@@ -302,7 +286,7 @@ export const AppointmentDetails = () => {
             styles={{
               control: (baseStyles, state) => ({
                 ...baseStyles,
-                backgroundColor: appearance === "dark" ? "#333" : "#fff",
+                backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
                 borderColor: state.isFocused ? "#007BFF" : "#444",
                 boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
                 "&:hover": {
@@ -311,7 +295,7 @@ export const AppointmentDetails = () => {
               }),
               menu: (baseStyles) => ({
                 ...baseStyles,
-                backgroundColor: appearance === "dark" ? "#333" : "#fff",
+                backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
                 color: appearance === "dark" ? "#fff" : "#000",
               }),
               option: (baseStyles, { isFocused }) => ({
@@ -343,12 +327,12 @@ export const AppointmentDetails = () => {
               style={{
                 width: "100%",
                 padding: "8px",
-                border: "1px solid #E5E7EB",
+                border: "1px solid #4D545A",
                 borderRadius: "6px",
-                backgroundColor: appearance === "dark" ? "#333" : "#fff",
+                backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
               }}
             />
-            <FiClock size={16} style={{ marginLeft: "8px" }} />
+          
           </Flex>
         </Box>
 
@@ -364,12 +348,12 @@ export const AppointmentDetails = () => {
               style={{
                 width: "100%",
                 padding: "8px",
-                border: "1px solid #E5E7EB",
+                border: "1px solid #4D545A",
                 borderRadius: "6px",
-                backgroundColor: appearance === "dark" ? "#333" : "#fff",
+                backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
               }}
             />
-            <FiClock size={16} style={{ marginLeft: "8px" }} />
+    
           </Flex>
         </Box>
 
@@ -378,7 +362,6 @@ export const AppointmentDetails = () => {
 <Box style={{ width: "100%" }}>
   <Button
     variant="ghost"
-    size="small"
     onClick={() => removeSlot(index)}
     style={{ color: "red", alignSelf: "flex-end" }}
   >
@@ -393,7 +376,6 @@ export const AppointmentDetails = () => {
     <Flex>
       <Button
         onClick={addSlot}
-        size="small"
         style={{
           width: "100%",
           backgroundColor: "#635BFF",

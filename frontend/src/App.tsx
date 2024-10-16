@@ -10,6 +10,7 @@ import { Toaster } from 'sonner'
 import { useStickyState } from './hooks/useStickyState'
 import MobileTabsPage from './pages/MobileTabsPage'
 import Cookies from 'js-cookie'
+import TabListSettings from './components/feature/userSettings/UserProfile/TabListSettings'
 
 /** Following keys will not be cached in app cache */
 const NO_CACHE_KEYS = [
@@ -46,7 +47,7 @@ const router = createBrowserRouter(
             <Route path="class/edit/:id" lazy={() => import('./components/class/EditClass')} />
             <Route path="settings" lazy={() => import('./pages/settings/Settings')}>
               <Route index lazy={() => import('./components/feature/userSettings/UserProfile/UserProfile')} />
-              <Route path="profile" lazy={() => import('./components/feature/userSettings/UserProfile/UserProfile')} />
+              <Route path="profile"  element={<TabListSettings/>}/>
               <Route path="appoinmentdetails" element={<AppointmentDetails />} />
               <Route path="personaldetails" element={<PersonalDetails />} />
               <Route path="users" lazy={() => import('./components/feature/userSettings/Users/AddUsers')} />

@@ -186,4 +186,4 @@ const UserProfile = () => {
     )
 }
 
-export const Component = UserProfile
+export default UserProfile; 

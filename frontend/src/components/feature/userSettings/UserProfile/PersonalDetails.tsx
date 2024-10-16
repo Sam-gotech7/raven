@@ -1,11 +1,14 @@
 import { useState ,useContext, useEffect} from "react";
-import { Flex, Text, Card, Box, Button } from "@radix-ui/themes";
+import { Flex, Text, Card, Box, Button, TextField,TextArea} from "@radix-ui/themes";
+import { Label, ErrorText, HelperText } from '@/components/common/Form'
+import { Stack, HStack } from '@/components/layout/Stack'
 import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
 import { useTheme } from "@/ThemeProvider";
 import { useFrappeUpdateDoc, FrappeConfig, FrappeContext,useFrappeAuth,useFrappeGetDoc  } from "frappe-react-sdk"
 import { toast } from 'sonner'
+import * as Select from '@radix-ui/react-select';
 
-export const PersonalDetails = () => {
+export  const PersonalDetails = () => {
   const [instructorId, setInstructorId] = useState('');
   const { data: profileDta, error } = useFrappeGetDoc('Instructor', instructorId);
   const [mobileNumber, setMobileNumber] = useState('');
@@ -77,19 +80,18 @@ export const PersonalDetails = () => {
         experience_level:experienceLevel
 
       })
-        .then((doc) => console.log(doc))
+        .then((doc) => toast.success('Personal Details Updated Successfully'))
         .catch((error) => console.error(error));
      };
 
      if (!profileDta?.experience_level) {
       return <p>Loading...</p>;
     }
-  const experienceLevelOptions = [
-    { value: "Beginner", label: "Beginner" },
-    { value: "Intermediate", label: "Intermediate" },
-    { value: "Expert", label: "Expert" },
-  ];
-
+    const experienceLevelOptions = [
+      { value: 'Beginner', label: 'Beginner' },
+      { value: 'Intermediate', label: 'Intermediate' },
+      { value: 'Expert', label: 'Expert' },
+    ];
   return (
     <Flex direction="column" gap="4" px={isMobile ? "4" : "6"} py="4" style={{ maxWidth: "100%" }}>
       <form onSubmit={handleSubmit}>
@@ -115,117 +117,73 @@ export const PersonalDetails = () => {
           <Card className="p-0 align-middle justify-center" style={{ width: isMobile ? '100%' : 'auto' }}>
             <Flex direction="column" gap="4" p="4">
               
-          
-              <Box>
-                <label htmlFor="mobileNumber">Mobile Number</label>
-                <input
-                  type="tel"
-                  id="mobileNumber"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="Enter your mobile number"
-                  style={{
-                    width: "98%",
-                    padding: "8px",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                  }}
-                />
-              </Box>
+            <Stack direction={isMobile ? 'column' : 'row'} gap="4" style={{ width: '100%' }}>
+  {/* Mobile Number Field */}
+  <Box style={{ flex: 1 }}>
+    <Label htmlFor="mobileNumber" isRequired>Mobile Number</Label>
+    <TextField.Root
+      id="mobileNumber"
+      value={mobileNumber}
+      onChange={(e) => setMobileNumber(e.target.value)}
+      placeholder="Enter your mobile number"
+    />
+  </Box>
 
-            
+  <Box style={{ flex: 1 }}>
+    <Label htmlFor="yearsOfExperience" isRequired>Years of Experience</Label>
+    <TextField.Root
+      id="yearsOfExperience"
+      type="number"
+      value={yearsOfExperience}
+      onChange={(e) => setYearsOfExperience(e.target.value)}
+      placeholder="Enter years of experience"
+    
+    />
+  </Box>
+</Stack>
+<Box>
+<Label htmlFor="biography" isRequired>Biography/Description</Label>
+    <TextArea
+      id="biography"
+      rows={5}
+      value={biography}
+      onChange={(e) => setYearsOfExperience(e.target.value)}
+      placeholder="Enter a short biography or description"
+    
+    />
+</Box>
               <Box>
-                <label htmlFor="yearsOfExperience">Years of Experience</label>
-                <input
-                  type="number"
-                  id="yearsOfExperience"
-                  value={yearsOfExperience}
-                  onChange={(e) => setYearsOfExperience(e.target.value)}
-                  placeholder="Enter years of experience"
-                  style={{
-                    width: "98%",
-                    padding: "8px",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                  }}
-                />
-              </Box>
-
-              {/* Biography/Description */}
-              <Box>
-                <label htmlFor="biography">Biography/Description</label>
-                <textarea
-                  id="biography"
-                  value={biography}
-                  onChange={(e) => setBiography(e.target.value)}
-                  rows={5}
-                  placeholder="Enter a short biography or description"
-                  style={{
-                    width: "98%",
-                    padding: "8px",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                  }}
-                />
-              </Box>
-
-              {/* Specialization (as textarea) */}
-              <Box>
-                <label htmlFor="specialization">Specialization</label>
-                <textarea
+              <Label htmlFor="specialization" isRequired>Specialization</Label>
+                <TextArea
                   id="specialization"
                   value={specialization}
                   onChange={(e) => setSpecialization(e.target.value)}
                   rows={5}
                   placeholder="Enter your specialization"
-                  style={{
-                    width: "98%",
-                    padding: "8px",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                  }}
                 />
               </Box>
 
               {/* Qualifications/Certifications */}
               <Box>
-                <label htmlFor="qualifications">Qualifications/Certifications</label>
-                <textarea
+              <Label htmlFor="qualifications" isRequired>Qualifications/Certifications</Label>
+                <TextArea
                   id="qualifications"
                   value={qualifications}
                   onChange={(e) => setQualifications(e.target.value)}
                   rows={5}
                   placeholder="Enter your qualifications or certifications"
-                  style={{
-                    width: "98%",
-                    padding: "8px",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                  }}
                 />
               </Box>
 
               {/* Certification/License Number */}
               <Box>
-                <label htmlFor="licenseNumber">Certification/License Number</label>
-                <input
+              <Label htmlFor="licenseNumber" isRequired>Certification/License Number</Label>
+                <TextField.Root
                   type="text"
                   id="licenseNumber"
                   value={licenseNumber}
                   onChange={(e) => setLicenseNumber(e.target.value)}
                   placeholder="Enter your certification/license number"
-                  style={{
-                    width: "98%",
-                    padding: "8px",
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
-                  }}
                 />
               </Box>
 
@@ -239,9 +197,9 @@ export const PersonalDetails = () => {
                   style={{
                     width: "100%",
                     padding: "8px",
-                    border: "1px solid #E5E7EB",
+                    border: "1px solid #4D545A",
                     borderRadius: "6px",
-                    backgroundColor: appearance === "dark" ? "#333" : "#fff",
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
                   }}
                 >
                   <option value="">Select experience level</option>

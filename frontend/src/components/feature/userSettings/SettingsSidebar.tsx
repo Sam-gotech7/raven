@@ -15,8 +15,8 @@ export const SettingsSidebar = () => {
             <Flex direction="column" gap='2' className='px-4'>
                 <SettingsGroup title="My Account" icon={LuUserCircle2}>
                     <SettingsSidebarItem title="Profile" to='profile' />
-                    <SettingsSidebarItem title="Personal Details" to='personaldetails' />
-                    <SettingsSidebarItem title="Appoinment Details" to='appoinmentdetails' />
+                    {/* <SettingsSidebarItem title="Personal Details" to='personaldetails' />
+                    <SettingsSidebarItem title="Appoinment Details" to='appoinmentdetails' /> */}
                    
                 </SettingsGroup>
                 {/* <SettingsSeparator /> */}
