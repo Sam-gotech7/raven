@@ -1,9 +1,12 @@
 import { useContext, useState,useEffect } from "react"
-import { FrappeConfig, FrappeContext, FrappeError ,useFrappeAuth,useFrappeFileUpload} from "frappe-react-sdk"
-import { Link } from 'react-router-dom';
+import { FrappeConfig, FrappeContext, FrappeError ,useFrappeGetDoc,useFrappeAuth,useFrappeFileUpload} from "frappe-react-sdk"
+import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from '../layout/Heading/PageHeader';
-import { Heading } from '@radix-ui/themes';
-import { Box, Flex } from '@radix-ui/themes';
+import { Label, ErrorText, HelperText } from "@/components/common/Form";
+import { Label as RadixLabel } from "@radix-ui/react-label";
+import { Stack, HStack } from "@/components/layout/Stack";
+import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
+import { Heading, TextField, TextArea, Box, Flex } from "@radix-ui/themes";
 import { BiChevronLeft } from 'react-icons/bi';
 import { useTheme } from '../../ThemeProvider'; // Import the theme context
 import { MdDelete } from "react-icons/md";
@@ -11,12 +14,21 @@ import Select from 'react-select';
 import { toast } from 'sonner'
 
 const EditWorkout = () => {
+  const { id } = useParams();
+  const formattedId = id?.replace(/-/g, " ");
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { appearance } = useTheme(); // Get the current theme (light or dark)
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(2); // Set the number of items per page
     const { call, db } = useContext(FrappeContext) as FrappeConfig
+    const { data: newWorkoutData } = useFrappeGetDoc("Workout Master", formattedId);
+console.log('data', newWorkoutData)
     const { currentUser } = useFrappeAuth()
+    const isMobile = useIsMobile();
+    const visibilityStatusOptions = [
+        { value: "Private", label: "Private" },
+        { value: "Public", label: "Public" },
+      ];
     const [companyOptions, setCompanyOptions] = useState([]); 
     const [gymEquipmentOptions, setGymEquipmentOptions] = useState([]); 
     const [authorOptions, setAuthorOptions] = useState([]);
@@ -44,33 +56,45 @@ const EditWorkout = () => {
  
 
     const [workoutForm, setWorkoutForm] = useState({
-        workoutName: 'Leg Workout',
-        company: '',
-        category: '',
-        description: '',
-        duration: '',
-        targetedMuscleGroup: [],
-        equipments: [],
-        difficultyLevel: 'Beginner',
-        notes: '',
-        benefits: '',
-        author: '',
-        visibility: 'Private', // Default visibility
-        creationDate: new Date().toLocaleDateString(),
-        overallRating: '',
+        workoutName: newWorkoutData?.workout_name || '',
+        company: newWorkoutData?.company ? { label: newWorkoutData?.company, value: newWorkoutData?.company } : null,
+        category: newWorkoutData?.category ? { label: newWorkoutData?.category, value: newWorkoutData?.category } : null,
+        description: newWorkoutData?.description || '',
+        duration: newWorkoutData?.duration || '',
+        targetedMuscleGroup: newWorkoutData?.targeted_muscle_group?.map((muscle) => ({
+          label: muscle.muscle,
+          value: muscle.muscle
+        })) || [],
+        equipments: newWorkoutData?.equipments?.map((equipment) => ({
+          label: equipment.equipment_name,
+          value: equipment.equipment_name
+        })) || [],
+        difficultyLevel: newWorkoutData?.difficulty_level,
+        notes: newWorkoutData?.notesinstructions || '',
+        benefits: newWorkoutData?.benifites || '',
+        author: newWorkoutData?.creater__author ? { label: newWorkoutData?.creater__author, value: newWorkoutData?.creater__author } : null,
+        visibility:  newWorkoutData?.visibility || 'Private', // Default visibility
+        creationDate: newWorkoutData?.creation_date || new Date().toLocaleDateString(),
+        overallRating: newWorkoutData?.overall_rating || '',
     });
 
-    const [exerciseList, setExerciseList] = useState([
-        {
-            exerciseName: '',
-            sets: '',
-            reps: '',
-            weight: '',
-            rest: '',
-            thumbnail: null,
-            supportVideo: null,
-        },
-    ]);
+    if (!newWorkoutData){
+      return <p>Loading</p>
+    }
+
+    console.log(workoutForm?.company)
+    const [exerciseList, setExerciseList] = useState(
+      newWorkoutData?.exercise_list?.map((exercise:any) => ({
+        exerciseName: exercise.exercise_name || '',
+        sets: exercise.sets || '',
+        reps: exercise.reps || '',
+        weight: exercise.weight || '',
+        rest: exercise.rest || '',
+        thumbnail: exercise.thumbnail || null,
+        supportVideo: exercise.support_video || null,
+      })) || []
+    );
+    
 
     // Handle workout form changes
     const handleInputChange = (e: any) => {
@@ -294,20 +318,24 @@ const handleFileChange = (index: number, e: any) => {
             <div className="mx-10 my-20">
                 <form onSubmit={SubmitHandler} className="space-y-6">
                     {/* Flex container for fields */}
-                    <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
-                            Workout Name
-                            <input
+                    <Stack
+            direction={isMobile ? "column" : "row"}
+            gap="4"
+            style={{ width: "100%" }}
+          >
+                        <Box style={{ flex: 1 }}>
+                        <Label>Workout Name</Label>
+                            <TextField.Root
                                 type="text"
                                 name="workoutName"
                                 value={workoutForm.workoutName}
                                 onChange={handleInputChange}
                                 placeholder="Workout Name"
-                                className="border px-2 py-4 rounded-lg w-full"
                             />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Company
+                        </Box>
+                        <Box style={{ flex: 1 }}>
+                        <Label>Company</Label>
+                            
                             <Select
                                 value={workoutForm.company}
                                 onChange={(selectedOption) => handleSelectChange("company", selectedOption)}
@@ -316,7 +344,7 @@ const handleFileChange = (index: number, e: any) => {
                                 styles={{
                                     control: (baseStyles, state) => ({
                                         ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
                                         borderColor: state.isFocused ? '#007BFF' : '#444', 
                                         boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
                                         '&:hover': {
@@ -325,7 +353,7 @@ const handleFileChange = (index: number, e: any) => {
                                     }),
                                     menu: (baseStyles) => ({
                                         ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
                                         color: appearance === 'dark' ? '#fff' : '#000',
                                     }),
                                     option: (baseStyles, { isFocused }) => ({
@@ -343,12 +371,17 @@ const handleFileChange = (index: number, e: any) => {
                                     }),
                                 }}
                             />
-                        </label>
-                    </Flex>
+                        </Box>
+                    </Stack>
 
-                    <Flex className="flex-wrap gap-4">
-                    <label className="flex-1 mr-4 min-w-[250px]">
-                            Category
+                    <Stack
+            direction={isMobile ? "column" : "row"}
+            gap="4"
+            style={{ width: "100%" }}
+          >
+                    <Box style={{ flex: 1 }}>
+                    <Label>Category</Label>
+                            
                             <Select
                                 value={workoutForm.category}
                                 onChange={(selectedOption) => handleSelectChange("category", selectedOption)}
@@ -357,7 +390,7 @@ const handleFileChange = (index: number, e: any) => {
                                 styles={{
                                     control: (baseStyles, state) => ({
                                         ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
                                         borderColor: state.isFocused ? '#007BFF' : '#444', 
                                         boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
                                         '&:hover': {
@@ -366,7 +399,7 @@ const handleFileChange = (index: number, e: any) => {
                                     }),
                                     menu: (baseStyles) => ({
                                         ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
+                                        backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
                                         color: appearance === 'dark' ? '#fff' : '#000',
                                     }),
                                     option: (baseStyles, { isFocused }) => ({
@@ -384,401 +417,583 @@ const handleFileChange = (index: number, e: any) => {
                                     }),
                                 }}
                             />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Duration (mins)
-                            <input
+                        </Box>
+                        <Box style={{ flex: 1 }}>
+                        <Label>Duration (mins)</Label>            
+                            <TextField.Root
                                 type="text"
                                 name="duration"
                                 value={workoutForm.duration}
                                 onChange={handleInputChange}
                                 placeholder="Duration (mins)"
-                                className="border px-2 py-4 rounded-lg w-full"
                             />
-                        </label>
-                    </Flex>
+                        </Box>
+                    </Stack>
 
-                    <label className="w-full mr-4">
-                        Description
-                        <textarea
+                    <Stack
+            direction={isMobile ? "column" : "row"}
+            gap="4"
+            style={{ width: "100%" }}
+          >
+                  <Box style={{ flex: 1 }}>
+                  <Label>Description</Label>
+                        
+                        <TextArea
                             name="description"
                             value={workoutForm.description}
                             onChange={handleInputChange}
                             placeholder="Description"
-                            className="border px-2 py-4 rounded-lg w-full"
-                            rows={3}
+                            rows={5}
                         />
-                    </label>
+                    </Box>
+                    </Stack>
 
-                    <label className="w-full mr-4">
-                        Notes/Instructions
-                        <textarea
+                    <Box style={{ flex: 1 }}>
+                    <Label>Notes/Instructions</Label>
+                        
+                        <TextArea
                             name="notes"
                             value={workoutForm.notes}
                             onChange={handleInputChange}
                             placeholder="Notes/Instructions"
-                            className="border px-2 py-4 mr-4 rounded-lg w-full"
-                            rows={3}
+                            rows={5}
                         />
-                    </label>
+                    </Box>
 
                     {/* Exercise List */}
                     <div className="my-10">
-                        <Heading size="5">Exercises</Heading>
-                        {exerciseList.map((exercise, index) => (
-                            <div key={index} className="space-y-4 border-b pb-4 mb-4">
-                                <Flex className="flex-wrap gap-4">
-                                <label className="flex-1 mr-4 min-w-[250px]">
-                Exercise Name
-                <Select
-                    value={exerciseListOptions.find((option) => option.value === exercise.exerciseName)}
-                    onChange={(selectedOption) => {
+            <Heading size="5">Exercises</Heading>
+            {exerciseList.map((exercise, index) => (
+              <div key={index} className="space-y-4 border-b pb-4 mb-4">
+                <Stack
+                  direction={isMobile ? "column" : "row"}
+                  gap="4"
+                  style={{ width: "100%" }}
+                >
+                  <Box style={{ flex: 1 }}>
+                    <Label>Exercise Name</Label>
+
+                    <Select
+                      value={exerciseListOptions.find(
+                        (option) => option.value === exercise.exerciseName
+                      )}
+                      onChange={(selectedOption) => {
                         const updatedExerciseList = [...exerciseList];
-                        updatedExerciseList[index].exerciseName = selectedOption.value;
+                        updatedExerciseList[index].exerciseName =
+                          selectedOption.value;
                         setExerciseList(updatedExerciseList);
-                    }}
-                    options={exerciseListOptions}
-                    placeholder="Select Exercise"
-                    styles={{
+                      }}
+                      options={exerciseListOptions}
+                      placeholder="Select Exercise"
+                      styles={{
                         control: (baseStyles, state) => ({
-                            ...baseStyles,
-                            backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                            borderColor: state.isFocused ? '#007BFF' : '#444', 
-                            boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
-                            '&:hover': {
-                                borderColor: state.isFocused ? '#007BFF' : '#666',
-                            },
+                          ...baseStyles,
+                          backgroundColor:
+                            appearance === "dark" ? "#17191A" : "#fff",
+                          borderColor: state.isFocused ? "#007BFF" : "#444",
+                          boxShadow: state.isFocused
+                            ? "0 0 0 1px #007BFF"
+                            : "none",
+                          "&:hover": {
+                            borderColor: state.isFocused ? "#007BFF" : "#666",
+                          },
                         }),
                         menu: (baseStyles) => ({
-                            ...baseStyles,
-                            backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                            color: appearance === 'dark' ? '#fff' : '#000',
+                          ...baseStyles,
+                          backgroundColor:
+                            appearance === "dark" ? "#17191A" : "#fff",
+                          color: appearance === "dark" ? "#fff" : "#000",
                         }),
                         option: (baseStyles, { isFocused }) => ({
-                            ...baseStyles,
-                            backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
-                            color: appearance === 'dark' ? '#fff' : '#000',
+                          ...baseStyles,
+                          backgroundColor: isFocused
+                            ? appearance === "dark"
+                              ? "#555"
+                              : "#eee"
+                            : "transparent",
+                          color: appearance === "dark" ? "#fff" : "#000",
                         }),
                         singleValue: (baseStyles) => ({
-                            ...baseStyles,
-                            color: appearance === 'dark' ? '#fff' : '#000',
+                          ...baseStyles,
+                          color: appearance === "dark" ? "#fff" : "#000",
                         }),
                         input: (baseStyles) => ({
-                            ...baseStyles,
-                            color: appearance === 'dark' ? '#fff' : '#000',
+                          ...baseStyles,
+                          color: appearance === "dark" ? "#fff" : "#000",
                         }),
-                    }}
-                />
-            </label>
-                                    <label className="flex-1 min-w-[250px]">
-                                        Sets
-                                        <input
-                                            type="text"
-                                            name="sets"
-                                            value={exercise.sets}
-                                            onChange={(e) => handleExerciseChange(index, e)}
-                                            placeholder="Sets"
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
-                                </Flex>
+                      }}
+                    />
+                  </Box>
 
-                                <Flex className="flex-wrap gap-4">
-                                    <label className="flex-1 mr-4 min-w-[250px]">
-                                        Reps
-                                        <input
-                                            type="text"
-                                            name="reps"
-                                            value={exercise.reps}
-                                            onChange={(e) => handleExerciseChange(index, e)}
-                                            placeholder="Reps"
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
-                                    <label className="flex-1 min-w-[250px]">
-                                        Weight (lbs)
-                                        <input
-                                            type="text"
-                                            name="weight"
-                                            value={exercise.weight}
-                                            onChange={(e) => handleExerciseChange(index, e)}
-                                            placeholder="Weight (lbs)"
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
-                                </Flex>
+                  <Box style={{ flex: 1 }}>
+                    <Label htmlFor="sets">Sets</Label>
 
-                                <Flex className="flex-wrap gap-4">
-                                    <label className="flex-1 mr-4 min-w-[250px]">
-                                        Rest (Sec)
-                                        <input
-                                            type="text"
-                                            name="rest"
-                                            value={exercise.rest}
-                                            onChange={(e) => handleExerciseChange(index, e)}
-                                            placeholder="Rest (Sec)"
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
-                                    <label className="flex-1 min-w-[250px]">
-                                        Thumbnail
-                                        <input
-                                            type="file"
-                                            name="thumbnail"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(index, e)}
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
-                                </Flex>
+                    <TextField.Root
+                      type="text"
+                      name="sets"
+                      value={exercise.sets}
+                      onChange={(e) => handleExerciseChange(index, e)}
+                      placeholder="Sets"
+                    />
+                  </Box>
+                </Stack>
 
-                                <Flex className="flex-wrap gap-4">
-                                    <label className="flex-1 mr-4 min-w-[250px]">
-                                        Support Video
-                                        <input
-                                            type="file"
-                                            name="supportVideo"
-                                            accept="video/*"
-                                            onChange={(e) => handleFileChange(index, e)}
-                                            className="border px-2 py-4 rounded-lg w-full"
-                                        />
-                                    </label>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeExercise(index)}
-                                        className="text-red-500  cursor-pointer bg-transparent hover:text-red-700"
-                                    >
-                                       <MdDelete className='mt-3' size={26} color='red' />
+                <Stack
+                  direction={isMobile ? "column" : "row"}
+                  gap="4"
+                  style={{ width: "100%" }}
+                >
+                  <Box style={{ flex: 1 }}>
+                    <Label htmlFor="reps" isRequired>
+                      {" "}
+                      Reps
+                    </Label>
 
-                                    </button>
-                                </Flex>
-                            </div>
-                        ))}
+                    <TextField.Root
+                      type="text"
+                      name="reps"
+                      value={exercise.reps}
+                      onChange={(e) => handleExerciseChange(index, e)}
+                      placeholder="Reps"
+                    />
+                  </Box>
+                  <Box style={{ flex: 1 }}>
+                    <Label htmlFor="weight" isRequired>
+                      {" "}
+                      Weight (lbs)
+                    </Label>
 
-                        <button
-                            type="button"
-                            onClick={addExercise}
-                            className="text-blue-500 cu px-3 py-2 bg-transparent border border-blue-900 rounded-lg hover:text-blue-700 mt-4"
-                        >
-                            Add Exercise
-                        </button>
-                    </div>
+                    <TextField.Root
+                      type="text"
+                      name="weight"
+                      value={exercise.weight}
+                      onChange={(e) => handleExerciseChange(index, e)}
+                      placeholder="Weight (lbs)"
+                    />
+                  </Box>
+                </Stack>
+
+                <Stack
+                  direction={isMobile ? "column" : "row"}
+                  gap="4"
+                  style={{ width: "100%" }}
+                >
+                  <Box style={{ flex: 1 }}>
+                    <Label htmlFor="rest" isRequired>
+                      {" "}
+                      Rest (Sec)
+                    </Label>
+
+                    <TextField.Root
+                      type="text"
+                      name="rest"
+                      value={exercise.rest}
+                      onChange={(e) => handleExerciseChange(index, e)}
+                      placeholder="Rest (Sec)"
+                    />
+                  </Box>
+                  <Box style={{ flex: 1 }}>
+                    <Label htmlFor="thumbnail" isRequired>
+                      {" "}
+                      Thumbnail
+                    </Label>
+
+                    <input
+                      type="file"
+                      name="thumbnail"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(index, e)}
+                    />
+                  </Box>
+                </Stack>
+
+                <Stack
+                  direction={isMobile ? "column" : "row"}
+                  gap="4"
+                  style={{ width: "100%" }}
+                >
+                  <Box style={{ flex: 1 }}>
+                    <Label htmlFor="supportVideo"> Support Video</Label>
+
+                    <input
+                      type="file"
+                      name="supportVideo"
+                      accept="video/*"
+                      onChange={(e) => handleFileChange(index, e)}
+                      className="border border-[#484E54] px-[1px] py-[7px] rounded-md w-full"
+                    />
+                  </Box>
+                  <Box style={{ flex: 1 }}>
+                    <button
+                      type="button"
+                      onClick={() => removeExercise(index)}
+                      className="text-red-500 mt-5  cursor-pointer bg-transparent hover:text-red-700"
+                    >
+                      <MdDelete className="mt-3" size={26} color="red" />
+                    </button>
+                  </Box>
+                </Stack>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addExercise}
+              className="text-blue-500 cu px-3 py-2 bg-transparent border border-blue-900 rounded-lg hover:text-blue-700 mt-4"
+            >
+              Add Exercise
+            </button>
+          </div>
 
                     {/* Other fields */}
-                    <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
-                            Targeted Muscle Group
-                            <Select
-                                isMulti
-                                value={workoutForm.targetedMuscleGroup}
-                                onChange={(selectedOptions) => handleMultiSelectChange("targetedMuscleGroup", selectedOptions)}
-                                options={targetedMuscleOptions}
-                                placeholder="Select Targeted Muscle Group"
-                                styles={{
-                                    control: (baseStyles, state) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
-                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
-                                        '&:hover': {
-                                            borderColor: state.isFocused ? '#007BFF' : '#666',
-                                        },
-                                    }),
-                                    menu: (baseStyles) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    option: (baseStyles, { isFocused }) => ({
-                                        ...baseStyles,
-                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    multiValue: (baseStyles) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#444' : '#ddd',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    multiValueLabel: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    singleValue: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    input: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                }}
-                            />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Equipments
-                            <Select
-                                isMulti
-                                value={workoutForm.equipments}
-                                onChange={(selectedOptions) => handleMultiSelectChange("equipments", selectedOptions)}
-                                options={gymEquipmentOptions}
-                                placeholder="Select Equipments"
-                                styles={{
-                                    control: (baseStyles, state) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
-                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
-                                        '&:hover': {
-                                            borderColor: state.isFocused ? '#007BFF' : '#666',
-                                        },
-                                    }),
-                                    menu: (baseStyles) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    option: (baseStyles, { isFocused }) => ({
-                                        ...baseStyles,
-                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    multiValue: (baseStyles) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#444' : '#ddd',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    multiValueLabel: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    singleValue: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    input: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                }}
-                            />
-                        </label>
-                    </Flex>
+                    <Stack
+            direction={isMobile ? "column" : "row"}
+            gap="4"
+            style={{ width: "100%" }}
+          >
+            <Box style={{ flex: 1 }}>
+              <Label> Targeted Muscle Group</Label>
 
-                    <Flex className="flex-wrap gap-4">
-                    <label className="flex-1 mr-4 min-w-[250px]">
-                            Difficulty Level
-                            <select
-                                name="difficultyLevel"
-                                value={workoutForm.difficultyLevel}
-                                onChange={handleInputChange}
-                                className="border px-2 py-4 rounded-lg w-full"
-                            >
-                                <option value="Beginner">Beginner</option>
-                                <option value="Intermediate">Intermediate</option>
-                                <option value="Advanced">Advanced</option>
-                            </select>
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Benefits
-                            <input
-                                type="text"
-                                name="benefits"
-                                value={workoutForm.benefits}
-                                onChange={handleInputChange}
-                                placeholder="Benefits"
-                                className="border px-2 py-4 rounded-lg w-full"
-                            />
-                        </label>
-                    </Flex>
+              <Select
+                isMulti
+                value={workoutForm.targetedMuscleGroup}
+                onChange={(selectedOptions) =>
+                  handleMultiSelectChange(
+                    "targetedMuscleGroup",
+                    selectedOptions
+                  )
+                }
+                options={targetedMuscleOptions}
+                placeholder="Select Targeted Muscle Group"
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+                    borderColor: state.isFocused ? "#007BFF" : "#444",
+                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    "&:hover": {
+                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                    },
+                  }),
+                  menu: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  option: (baseStyles, { isFocused }) => ({
+                    ...baseStyles,
+                    backgroundColor: isFocused
+                      ? appearance === "dark"
+                        ? "#555"
+                        : "#eee"
+                      : "transparent",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  multiValue: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#444" : "#ddd",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  multiValueLabel: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  singleValue: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  input: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                }}
+              />
+            </Box>
+            <Box style={{ flex: 1 }}>
+              <Label> Equipments</Label>
 
-                    <Flex className="flex-wrap  gap-4">
-                    <label className="flex-1 mr-4 min-w-[250px]">
-                            Author
-                            <Select
-                                value={workoutForm.author}
-                                onChange={(selectedOption) => handleSelectChange("author", selectedOption)}
-                                options={authorOptions}
-                                placeholder="Select Author"
-                                styles={{
-                                    control: (baseStyles, state) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
-                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
-                                        '&:hover': {
-                                            borderColor: state.isFocused ? '#007BFF' : '#666',
-                                        },
-                                    }),
-                                    menu: (baseStyles) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#333' : '#fff',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    option: (baseStyles, { isFocused }) => ({
-                                        ...baseStyles,
-                                        backgroundColor: isFocused ? (appearance === 'dark' ? '#555' : '#eee') : 'transparent',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    multiValue: (baseStyles) => ({
-                                        ...baseStyles,
-                                        backgroundColor: appearance === 'dark' ? '#444' : '#ddd',
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    multiValueLabel: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    singleValue: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                    input: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: appearance === 'dark' ? '#fff' : '#000',
-                                    }),
-                                }}
-                            />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Visibility
-                            <select
-                                name="visibility"
-                                value={workoutForm.visibility}
-                                onChange={handleInputChange}
-                                className="border px-2 py-4 rounded-lg w-full"
-                            >
-                                <option value="Private">Private</option>
-                                <option value="Public">Public</option>
-                            </select>
-                        </label>
-                    </Flex>
+              <Select
+                isMulti
+                value={workoutForm.equipments}
+                onChange={(selectedOptions) =>
+                  handleMultiSelectChange("equipments", selectedOptions)
+                }
+                options={gymEquipmentOptions}
+                placeholder="Select Equipments"
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+                    borderColor: state.isFocused ? "#007BFF" : "#444",
+                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    "&:hover": {
+                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                    },
+                  }),
+                  menu: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  option: (baseStyles, { isFocused }) => ({
+                    ...baseStyles,
+                    backgroundColor: isFocused
+                      ? appearance === "dark"
+                        ? "#555"
+                        : "#eee"
+                      : "transparent",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  multiValue: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#444" : "#ddd",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  multiValueLabel: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  singleValue: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  input: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                }}
+              />
+            </Box>
+          </Stack>
 
-                    <Flex className="flex-wrap gap-4">
-                        <label className="flex-1 mr-4 min-w-[250px]">
-                            Creation Date
-                            <input
-                                type="date"
-                                name="creationDate"
-                                value={workoutForm.creationDate}
-                                onChange={handleInputChange}
-                                placeholder="Creation Date"
-                                className="border px-2 py-4 rounded-lg w-full"
-                               
-                            />
-                        </label>
-                        <label className="flex-1 min-w-[250px]">
-                            Overall Rating
-                            <input
-                                type="number"
-                                name="overallRating"
-                                value={workoutForm.overallRating}
-                                onChange={handleInputChange}
-                                placeholder="Overall Rating"
-                                className="border px-2 py-4 rounded-lg w-full"
-                            />
-                        </label>
-                    </Flex>
+          <Stack
+            direction={isMobile ? "column" : "row"}
+            gap="4"
+            style={{ width: "100%" }}
+          >
+          <Box style={{ flex: 1 }}>
+    <Label htmlFor="difficultyLevel">Difficulty Level</Label>
+    <Select
+      name="difficultyLevel"
+      value={
+        workoutForm.difficultyLevel
+          ? {
+              label: workoutForm.difficultyLevel,
+              value: workoutForm.difficultyLevel,
+            }
+          : null
+      }
+      onChange={(selectedOption) =>
+        setWorkoutForm((prev) => ({
+          ...prev,
+          difficultyLevel: selectedOption.value, // Store only the value (string)
+        }))
+      }
+      options={[
+        { label: "Beginner", value: "Beginner" },
+        { label: "Intermediate", value: "Intermediate" },
+        { label: "Advanced", value: "Advanced" },
+      ]}
+      placeholder="Select Difficulty Level"
+      styles={{
+        control: (baseStyles, state) => ({
+          ...baseStyles,
+          backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+          borderColor: state.isFocused ? "#007BFF" : "#444",
+          boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+          "&:hover": {
+            borderColor: state.isFocused ? "#007BFF" : "#666",
+          },
+        }),
+        menu: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+          color: appearance === "dark" ? "#fff" : "#000",
+        }),
+        option: (baseStyles, { isFocused }) => ({
+          ...baseStyles,
+          backgroundColor: isFocused
+            ? appearance === "dark"
+              ? "#555"
+              : "#eee"
+            : "transparent",
+          color: appearance === "dark" ? "#fff" : "#000",
+        }),
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: appearance === "dark" ? "#fff" : "#000",
+        }),
+        input: (baseStyles) => ({
+          ...baseStyles,
+          color: appearance === "dark" ? "#fff" : "#000",
+        }),
+      }}
+    />
+  </Box>
+            <Box style={{ flex: 1 }}>
+         <Label htmlFor="benefits"> Benefits
+         </Label>
+              
+              <TextField.Root
+                type="text"
+                name="benefits"
+                value={workoutForm.benefits}
+                onChange={handleInputChange}
+                placeholder="Benefits"
+              />
+            </Box>
+          </Stack>
 
+          <Stack
+      direction={isMobile ? "column" : "row"}
+      gap="4"
+      style={{ width: "100%" }}
+    >
+        <Box style={{ flex: 1 }}>
+        <Label > Author </Label>
+      
+              
+              <Select
+                value={workoutForm.author}
+                onChange={(selectedOption) =>
+                  handleSelectChange("author", selectedOption)
+                }
+                options={authorOptions}
+                placeholder="Select Author"
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+                    borderColor: state.isFocused ? "#007BFF" : "#444",
+                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    "&:hover": {
+                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                    },
+                  }),
+                  menu: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  option: (baseStyles, { isFocused }) => ({
+                    ...baseStyles,
+                    backgroundColor: isFocused
+                      ? appearance === "dark"
+                        ? "#555"
+                        : "#eee"
+                      : "transparent",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  multiValue: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: appearance === "dark" ? "#444" : "#ddd",
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  multiValueLabel: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  singleValue: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                  input: (baseStyles) => ({
+                    ...baseStyles,
+                    color: appearance === "dark" ? "#fff" : "#000",
+                  }),
+                }}
+              />
+            </Box>
+            <Box style={{ flex: 1 }}>
+  <Label htmlFor="visibility" isRequired>
+    Visibility Status
+  </Label>
+  <Select
+    name="visibility"
+    options={visibilityStatusOptions}
+    value={
+      workoutForm.visibility
+        ? {
+            label: workoutForm.visibility,
+            value: workoutForm.visibility,
+          }
+        : null
+    }
+    onChange={(selectedOption) =>
+      setWorkoutForm((prev) => ({
+        ...prev,
+        visibility: selectedOption.value,
+      }))
+    }
+    styles={{
+      control: (baseStyles, state) => ({
+        ...baseStyles,
+        backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+        borderColor: state.isFocused ? "#007BFF" : "#444",
+        boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+        "&:hover": {
+          borderColor: state.isFocused ? "#007BFF" : "#666",
+        },
+      }),
+      menu: (baseStyles) => ({
+        ...baseStyles,
+        backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
+        color: appearance === "dark" ? "#fff" : "#000",
+      }),
+      option: (baseStyles, { isFocused }) => ({
+        ...baseStyles,
+        backgroundColor: isFocused
+          ? appearance === "dark"
+            ? "#555"
+            : "#eee"
+          : "transparent",
+        color: appearance === "dark" ? "#fff" : "#000",
+      }),
+      singleValue: (baseStyles) => ({
+        ...baseStyles,
+        color: appearance === "dark" ? "#fff" : "#000",
+      }),
+      input: (baseStyles) => ({
+        ...baseStyles,
+        color: appearance === "dark" ? "#fff" : "#000",
+      }),
+    }}
+  />
+</Box>
+
+          </Stack>
+
+          <Stack
+      direction={isMobile ? "column" : "row"}
+      gap="4"
+      style={{ width: "100%" }}
+    >
+         <Box style={{ flex: 1 }}>
+         <Label htmlFor="creationDate">Creation Date</Label>
+            
+              
+              <input
+                type="date"
+                name="creationDate"
+                value={workoutForm.creationDate}
+                onChange={handleInputChange}
+                placeholder="Creation Date"
+                className="border border-[#484e54] px-[1px] py-[7px] rounded-md w-full"
+              />
+            
+            </Box>
+            <Box style={{ flex: 1 }}>
+            <Label htmlFor="overallRating" > Overall Rating</Label>
+              <TextField.Root
+                type="number"
+                name="overallRating"
+                value={workoutForm.overallRating}
+                onChange={handleInputChange}
+                placeholder="Overall Rating"
+              />
+        
+            </Box>
+          </Stack>
                     <button type='submit' className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900' >Save</button>
                 </form>
             </div>
