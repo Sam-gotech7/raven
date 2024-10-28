@@ -17,7 +17,7 @@ import { UserFields, UserListContext } from "@/utils/users/UserListProvider"
 import { replaceCurrentUserFromDMChannelName } from "@/utils/operations"
 import { __ } from "@/utils/translations"
 
-export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCountData }) => {
+export const DirectMessageListInstructor = ({ unread_count }: { unread_count?: UnreadCountData }) => {
 
     const { dm_channels } = useContext(ChannelListContext) as ChannelListContextType
 
@@ -38,7 +38,7 @@ export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCount
             <SidebarGroupItem className={'gap-1 pl-1'}>
                 <Flex width='100%' justify='between' align='center' gap='2' pr='2' className="group">
                     <Flex align='center' gap='2' width='100%' onClick={toggle} className="cursor-default select-none">
-                        <SidebarGroupLabel className="pt-0.5">{__("Members")}</SidebarGroupLabel>
+                        <SidebarGroupLabel className="pt-0.5">{__("Instructors")}</SidebarGroupLabel>
                         <Box className={clsx('transition-opacity ease-in-out duration-200', !showData && unread_count && unread_count?.total_unread_count_in_dms > 0 ? 'opacity-100' : 'opacity-0')}>
                             <SidebarBadge>{unread_count?.total_unread_count_in_dms}</SidebarBadge>
                         </Box>
@@ -63,13 +63,15 @@ export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCount
 
 const DirectMessageItemList = ({ unread_count }: { unread_count?: UnreadCountData }) => {
     const { dm_channels } = useContext(ChannelListContext) as ChannelListContextType
+console.log(dm_channels, 'dmchannel')
 
-    const { enabledInstructors,users,enabledUsers } = useContext(UserListContext)
-    console.log(enabledInstructors, 'insstru')
-    const newusers = enabledInstructors?.map((user:any)=> user.name)
-    const new_channels = dm_channels?.filter((cur) => !newusers.includes(cur?.peer_user_id));
+const { enabledInstructors,users,enabledUsers } = useContext(UserListContext)
+console.log(enabledInstructors, 'insstru')
+const newusers = enabledInstructors?.map((user:any)=> user.name)
+const new_channels = dm_channels?.filter((cur)=>newusers.includes(cur?.peer_user_id))
+console.log(new_channels, 'new channels')
     return <>
-        {new_channels.map((channel) => <DirectMessageItem
+        {new_channels?.map((channel) => <DirectMessageItem
             key={channel.name}
             channel={channel}
             unreadCount={unread_count?.channels ?? []}
@@ -130,7 +132,11 @@ const ExtraUsersItemList = () => {
 
     const { dm_channels, mutate } = useContext(ChannelListContext) as ChannelListContextType
 
-    const { enabledUsers } = useContext(UserListContext)
+    const { enabledInstructors,users,enabledUsers } = useContext(UserListContext)
+   
+    console.log('ei',enabledInstructors)
+    console.log('eu',enabledUsers)
+
     const { call } = useFrappePostCall<{ message: string }>("raven.api.raven_channel.create_direct_message_channel")
 
     const navigate = useNavigate()
@@ -150,10 +156,11 @@ const ExtraUsersItemList = () => {
 
     const filteredUsers = useMemo(() => {
         // Show only users who are not in the DM list
-        return enabledUsers.filter((user) => !dm_channels.find((channel) => channel.peer_user_id === user.name)).slice(0, 5)
-    }, [enabledUsers, dm_channels])
+        console.log(enabledInstructors ,' enable users')
+        return enabledInstructors.filter((user:any) => !dm_channels.find((channel) => channel.peer_user_id === user.name)).slice(0, 5)
+    }, [enabledInstructors, dm_channels])
 
-    return <>{filteredUsers.map((user) => <ExtraUsersItem
+    return <>{filteredUsers.map((user:any) => <ExtraUsersItem
         key={user.name}
         user={user}
         createDMChannel={createDMChannel}
@@ -188,7 +195,7 @@ const ExtraUsersItem = ({ user, createDMChannel }: { user: UserFields, createDMC
                 initial: '3',
                 md: '2'
             }} className="text-ellipsis line-clamp-1" weight='medium'>
-                {user.name !== currentUser ? user.full_name : `${user.full_name} (You)`}
+                {user.name !== currentUser ? user.full_name : ''}
             </Text>
         </Flex>
     </SidebarButtonItem>

@@ -1,5 +1,7 @@
 import { ChannelList } from '../../feature/channels/ChannelList'
 import { DirectMessageList } from '../../feature/direct-messages/DirectMessageList'
+import { DirectMessageListInstructor } from '../../feature/direct-messages/DirectMessageListInstructor'
+
 import { SidebarItem } from './SidebarComp'
 import { AccessibleIcon, Box, Flex, ScrollArea, Text } from '@radix-ui/themes'
 import useUnreadMessageCount from '@/hooks/useUnreadMessageCount'
@@ -51,6 +53,9 @@ export const SidebarBody = () => {
                 </Flex>
                 <ChannelList unread_count={unread_count?.message} />
                 <DirectMessageList unread_count={unread_count?.message} />
+                <DirectMessageListInstructor unread_count={unread_count?.message} />
+
+                
             </Flex>
         </ScrollArea>
     )

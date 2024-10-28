@@ -44,6 +44,11 @@ def get_list():
 	# Get users is cached since this won't change frequently
 	return get_users()
 
+from frappe import session, get_roles
+
+def check_instructor_role(user):
+    roles = get_roles(user)
+    return "Gym Instructor" in roles and "System Manager" not  in roles
 
 @redis_cache()
 def get_users():
@@ -61,6 +66,8 @@ def get_users():
 		],
 		order_by="full_name",
 	)
+	for user in users:
+		user['is_instructor'] = check_instructor_role(user.get('name'))
 	return users
 
 

@@ -6,12 +6,13 @@ import { Box, Flex, Link } from "@radix-ui/themes";
 import { RavenUser } from "@/types/Raven/RavenUser";
 
 
-export const UserListContext = createContext<{ users: UserFields[], enabledUsers: UserFields[] }>({
+export const UserListContext = createContext<{ users: UserFields[], enabledUsers: UserFields[], enabledInstructors:any }>({
     users: [],
-    enabledUsers: []
+    enabledUsers: [],
+    enabledInstructors: []
 })
 
-export type UserFields = Pick<RavenUser, 'name' | 'full_name' | 'user_image' | 'first_name' | 'enabled' | 'type' | 'availability_status' | 'custom_status'>
+export type UserFields = Pick<RavenUser, 'name' | 'full_name' | 'user_image' | 'first_name' | 'enabled' | 'type' | 'availability_status' | 'custom_status' | 'is_instructor'>
 
 export const UserListProvider = ({ children }: PropsWithChildren) => {
 
@@ -21,6 +22,8 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
     })
+
+    console.log("hjjjgffdghjkjj", data)
 
     /** TODO: If a bulk import happens, this gets called multiple times potentially causing the server to go down.
      * Instead, throttle this - wait for all events to subside
@@ -32,10 +35,11 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         globalMutate(`channel_list`)
     })
 
-    const { users, enabledUsers } = useMemo(() => {
+    const { users, enabledUsers, enabledInstructors } = useMemo(() => {
         return {
             users: data?.message ?? [],
-            enabledUsers: data?.message?.filter(user => user.enabled === 1) ?? []
+            enabledUsers: data?.message?.filter(user => user.enabled === 1) ?? [],
+            enabledInstructors: data?.message?.filter(user =>  user.is_instructor == true) ?? []
         }
     }, [data])
 
@@ -52,7 +56,7 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         </Flex>
     }
 
-    return <UserListContext.Provider value={{ users, enabledUsers }}>
+    return <UserListContext.Provider value={{ users, enabledUsers, enabledInstructors }}>
         {children}
     </UserListContext.Provider>
 }

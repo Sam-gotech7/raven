@@ -13,6 +13,7 @@ export interface RavenUser{
 	idx?: number
 	/**	Type : Select	*/
 	type: "User" | "Bot"
+	is_instructor?:any,
 	/**	User : Link - User	*/
 	user?: string
 	/**	Bot : Link - Raven Bot	*/
