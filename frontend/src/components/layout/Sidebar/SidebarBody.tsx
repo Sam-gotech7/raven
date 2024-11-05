@@ -58,7 +58,12 @@ export const SidebarBody = () => {
                         to={'appoinment'}
                         label='Appoinments'
                         icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                        iconLabel='Appoinments' />
+                        iconLabel='instructorhighlight' /><SidebarItemForPage
+                        to={'instructorhighlight'}
+                        label='Highlight'
+                        icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='instructorhighlight' />
+
                                </>
                             )
                         }

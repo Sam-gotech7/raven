@@ -50,6 +50,7 @@ const router = createBrowserRouter(
             <Route path="workout/edit/:id" lazy={() => import('./components/workout/EditWorkout')} />
             <Route path="class" lazy={() => import('./components/class/manage-class/ManageClass')} />
             <Route path="appoinment" lazy={() => import('./components/appoinment/manage-class/ManageClass')} />
+            <Route path="instructorhighlight" lazy={() => import('./components/highlights/InstructorSchedule')} />
 
             <Route path="class/create" lazy={() => import('./components/class/CreateClass')} />
             <Route path="class/edit/:id" lazy={() => import('./components/class/EditClass')} />
