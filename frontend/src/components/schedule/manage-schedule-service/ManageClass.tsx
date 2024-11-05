@@ -109,8 +109,9 @@ const AddUsers = () => {
   const [locationOptions, setLocationOptions] = useState([]);
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
+  console.log(`go_gym.api.routes.base.instructor_api?action=get_services&limit=${limit}&instructor_id=${instructorId}&&filters={"date":"${formattedDate}","status":"${status == 'null' ? '' : status}","location":"${location == 'null' ? '' : location}","search":"${searchText.length > 2 ? '' : searchText}"}`)
   const { data, isLoading, error } = useFrappeGetCall<any>(
-    `go_gym.api.routes.base.instructor_api?action=get_classes&limit=${limit}&instructor_id=${instructorId}&&filters={"date":"${formattedDate}","status":"${status == 'null' ? '' : status}","location":"${location == 'null' ? '' : location}","search":"${searchText.length > 2 ? '' : searchText}"}`,
+    `go_gym.api.routes.base.instructor_api?action=get_services&limit=${limit}&instructor_id=${instructorId}&&filters={"date":"${formattedDate}","status":"${status == 'null' ? '' : status}","location":"${location == 'null' ? '' : location}","search":"${searchText.length > 2 ? '' : searchText}"}`,
     {}
   );
 
@@ -147,7 +148,7 @@ const options = [20, 50, 100, 200, 500]
       <Flex justify="between" align="center">
         <Flex direction="column" gap="0">
           <Text size="3" className={"font-semibold"}>
-            Class Schedules
+            Service Schedules
           </Text>
           <Text size="1" color="gray"></Text>
         </Flex>
@@ -245,8 +246,7 @@ const options = [20, 50, 100, 200, 500]
         {!data && !error && <TableLoader columns={3} />}
 
         {data?.message?.data &&
-          data?.message?.data.length === 0 &&
-           (
+          data?.message?.data.length === 0 && (
             <Flex align="center" justify="center" className="min-h-[32rem]">
               <Text size="2" align="center">
                 No results found

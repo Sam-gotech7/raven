@@ -12,6 +12,8 @@ import MobileTabsPage from './pages/MobileTabsPage'
 import Cookies from 'js-cookie'
 import TabListSettings from './components/feature/userSettings/UserProfile/TabListSettings'
 import ScheduleDetails from './components/schedule/manage-schedule/scheduleDetails';
+import ServiceScheduleDetails from './components/schedule/manage-schedule-service/scheduleDetails';
+
 /** Following keys will not be cached in app cache */
 const NO_CACHE_KEYS = [
   "frappe.desk.form.load.getdoctype",
@@ -41,6 +43,8 @@ const router = createBrowserRouter(
             <Route path="workout" lazy={() => import('./components/workout/manage-workout/ManageWorkout')} />
             <Route path="schedule" lazy={() => import('./components/schedule/manage-schedule/ManageClass')} />
             <Route path="schedule/:id" element={<ScheduleDetails/>}/>
+            <Route path="service-schedule" lazy={() => import('./components/schedule/manage-schedule-service/ManageClass')} />
+            <Route path="service-schedule/:id" element={<ServiceScheduleDetails/>}/>
             <Route path="workout/create" lazy={() => import('./components/workout/CreateWorkout')} />
             <Route path="workout/:id" lazy={() => import('./components/workout/CreateWorkout')} />
             <Route path="workout/edit/:id" lazy={() => import('./components/workout/EditWorkout')} />

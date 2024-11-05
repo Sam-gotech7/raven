@@ -52,7 +52,7 @@ export const SidebarBody = () => {
                         to={'service-schedule'}
                         label='Service Schedule'
                         icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                        iconLabel='Today Schedule' />
+                        iconLabel='Service Schedule' />
                                </>
                             )
                         }
