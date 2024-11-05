@@ -61,83 +61,15 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
 
 
     const handleViewClick = (workout: any) => {
-        setSelectedWorkout(workout); // Set the selected workout data for the modal
+        console.log("Navigating to workout:", workout);
+        navigate(`/channel/schedule/${encodeURIComponent(workout.class_id)}`, { state: { workout } });
     };
+    
+    
       
     return (
      <>
-       <Dialog.Root open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-                    <Dialog.Content 
-                        className="fixed flex items-center justify-center"
-                        style={{
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            backgroundColor: "#18191B",
-                            padding: "24px",
-                            borderRadius: "12px",
-                            boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.3)",
-                            width: "500px",
-                            maxWidth: "90%",
-                            maxHeight: "90%",
-                            overflowY: "auto"
-                        }}
-                    >
-                        {selectedWorkout && (
-                            <Box>
-                                {/* Modal Heading */}
-                                <Text size="6" weight="bold" style={{ color: "#FFFFFF", marginBottom: "16px", fontSize: '24px' }}>
-                                    Class Details
-                                </Text>
-                                
-                                {/* Workout Details */}
-                                <Box style={{ color: "#CFCFCF", fontSize: "16px", lineHeight: "1.5", marginBottom: "16px" }}>
-                                    <Flex direction="column" gap="2">
-                                        <Text><strong>Class Title:</strong> {selectedWorkout.title}</Text>
-                                        <Text><strong>Class ID:</strong> {selectedWorkout.class_id}</Text>
-                                        <Text><strong>Instructor:</strong> {selectedWorkout.instructor_name}</Text>
-                                        <Text><strong>Schedule Date:</strong> {selectedWorkout.schedule_date}</Text>
-                                        <Text><strong>Start Time:</strong> {selectedWorkout.start_time}</Text>
-                                        <Text><strong>End Time:</strong> {selectedWorkout.end_time}</Text>
-                                        <Text><strong>Status:</strong> {selectedWorkout.status}</Text>
-                                        <Text><strong>Location:</strong> {selectedWorkout.location}</Text>
-                                        <Text><strong>Price:</strong> {selectedWorkout.price > 0 ? `₹${selectedWorkout.price}` : "Free"}</Text>
-                                    </Flex>
-                                </Box>
-
-                                {/* Enrollment Info Section */}
-                                {selectedWorkout.enrollment_info && selectedWorkout.enrollment_info.length > 0 && (
-                                    <>
-                                        <Text size="5" weight="bold" style={{ color: "#FFFFFF", marginBottom: "12px", fontSize: '20px' }}>
-                                            Enrollment Details
-                                        </Text>
-                                        <Box style={{ color: "#CFCFCF", fontSize: "14px", lineHeight: "1.5" }}>
-                                            {selectedWorkout.enrollment_info.map((member: any, index: number) => (
-                                                <Box key={index} style={{ marginBottom: "12px", padding: "8px", borderRadius: "8px", backgroundColor: "#2A2B2E" }}>
-                                                    <Flex align="center" gap="3">
-                                                        <Avatar src={member.image} alt={member.member_name} style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
-                                                        <Flex direction="column">
-                                                            <Text><strong>Name:</strong> {member.member_name}</Text>
-                                                            <Text><strong>Email:</strong> {member.email_id}</Text>
-                                                            <Text><strong>Mobile:</strong> {member.mobile}</Text>
-                                                            <Text><strong>Location:</strong> {member.location}</Text>
-                                                        </Flex>
-                                                    </Flex>
-                                                </Box>
-                                            ))}
-                                        </Box>
-                                    </>
-                                )}
-
-                                {/* Close Button */}
-                                <Button onClick={() => setSelectedWorkout(null)} style={{ marginTop: "24px", width: "100%" }}>Close</Button>
-                            </Box>
-                        )}
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
+      
 
      <Table.Root variant="surface">
             <Table.Header>
@@ -157,7 +89,7 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
                     return (
                         <Table.Row key={index}>
                             <Table.RowHeaderCell><Checkbox checked={isSelected} disabled={defaultSelected.includes(workout.class_id)} onCheckedChange={() => onCheckboxChange(workout.class_id)} /></Table.RowHeaderCell>
-                            <Table.Cell>
+                            <Table.Cell style={{ cursor: 'pointer' }} onClick={() => handleViewClick(workout)}>
                                {workout.class_id}
                             </Table.Cell>
 
