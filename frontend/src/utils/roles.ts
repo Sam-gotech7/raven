@@ -34,3 +34,5 @@ export const hasServerScriptEnabled = () => {
     // @ts-expect-error
     return (window?.frappe?.boot?.server_script_enabled)
 }
+
+export const ApiUrl = 'http://192.168.1.105:8003/api/method/go_gym.api.routes.base.instructor_api?'

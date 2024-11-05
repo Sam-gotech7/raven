@@ -39,6 +39,7 @@ const router = createBrowserRouter(
             </Route>
             <Route path="saved-messages" lazy={() => import('./components/feature/saved-messages/SavedMessages')} />
             <Route path="workout" lazy={() => import('./components/workout/manage-workout/ManageWorkout')} />
+            <Route path="schedule" lazy={() => import('./components/schedule/manage-schedule/ManageClass')} />
             <Route path="workout/create" lazy={() => import('./components/workout/CreateWorkout')} />
             <Route path="workout/:id" lazy={() => import('./components/workout/CreateWorkout')} />
             <Route path="workout/edit/:id" lazy={() => import('./components/workout/EditWorkout')} />

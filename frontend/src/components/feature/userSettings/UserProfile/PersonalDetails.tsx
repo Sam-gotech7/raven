@@ -26,8 +26,7 @@ export  const PersonalDetails = () => {
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
   
- 
-
+ console.log(currentUser, 'cur')
 
   const fetchInstructorId = async () => {
     if (!currentUser) {
@@ -53,6 +52,8 @@ export  const PersonalDetails = () => {
 
   useEffect(() => {
     if (currentUser) {
+
+      console.log(currentUser, 'ghsBSCJHsDJHGdSHdSkh')
       fetchInstructorId();
     }
   }, [currentUser]);

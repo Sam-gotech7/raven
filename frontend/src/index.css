@@ -144,3 +144,62 @@ html header button {
         opacity: 1;
     }
 }
+
+
+/* Customize the input appearance */
+.react-datepicker-wrapper .react-datepicker__input-container input {
+    width: 90%; /* Full width for better alignment */
+    padding: 4px 12px; /* Adjust padding for a cleaner look */
+    border-radius: 3px; /* Rounded corners for smooth design */
+    color: #E6E7E9; /* Text color */
+    font-size: 0.875rem; /* Adjust font size */
+    background-color: #2C3033; /* Light background */
+    margin-right: 10px;
+  }
+  
+  /* Hover effect */
+  .react-datepicker-wrapper .react-datepicker__input-container input:hover {
+    border-color: #b5b5b5;
+  }
+  
+  /* Custom calendar appearance */
+  .react-datepicker {
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #e0e0e0; /* Light border */
+    border-radius: 8px; /* Rounded calendar corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  }
+  
+  /* Customize header and navigation */
+  .react-datepicker__header {
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .react-datepicker__navigation {
+    top: 10px; /* Adjusted for better placement */
+  }
+  .react-datepicker__current-month {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Customize day cells */
+  .react-datepicker__day--selected,
+  .react-datepicker__day--keyboard-selected {
+    background-color: #5c6ac4; /* Customize selected color */
+    color: #fff;
+  }
+  .react-datepicker__day:hover {
+    background-color: #d1d1d1;
+  }
+
+  .custom-datepicker-container {
+    width: 120px; /* Set a width if necessary */
+  }
+  
+  .custom-datepicker-input {
+    width: 90%; /* Full width to fill container */
+    padding: 8px; /* Adjust padding for balance */
+  }
+  
+  

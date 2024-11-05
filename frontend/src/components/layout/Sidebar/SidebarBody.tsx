@@ -8,10 +8,13 @@ import useUnreadMessageCount from '@/hooks/useUnreadMessageCount'
 import PinnedChannels from './PinnedChannels'
 import React, { useState } from 'react'
 import { BiBookmark, BiMessageAltDetail } from 'react-icons/bi'
+import { MdSchedule } from 'react-icons/md'
+
+
 import { __ } from '@/utils/translations'
 import { MdSportsGymnastics } from "react-icons/md";
 import { LuBookOpen } from "react-icons/lu";
-import { isGymMemberonly } from '@/utils/roles'
+import { isGymMemberonly,isGymInstructor } from '@/utils/roles'
 
 
 export const SidebarBody = () => {
@@ -19,6 +22,7 @@ export const SidebarBody = () => {
 
     const unread_count = useUnreadMessageCount()
     const isGymMemberUser = isGymMemberonly()
+    const isGymInstructorRole = isGymInstructor()
 
     return (
         <ScrollArea type="hover" scrollbars="vertical" className='h-[calc(100vh-7rem)]'>
@@ -34,6 +38,24 @@ export const SidebarBody = () => {
                         label='Saved'
                         icon={<BiBookmark className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Saved Message' />
+
+                        {
+                            isGymInstructorRole && (
+                               <>
+                                <SidebarItemForPage
+                        to={'schedule'}
+                        label='Class Schedule'
+                        icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='Today Schedule' />
+
+                        <SidebarItemForPage
+                        to={'service-schedule'}
+                        label='Service Schedule'
+                        icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='Today Schedule' />
+                               </>
+                            )
+                        }
                         { !isGymMemberUser ? (
                         <>
                             <SidebarItemForPage
