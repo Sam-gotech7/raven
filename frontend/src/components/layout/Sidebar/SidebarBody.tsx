@@ -8,7 +8,7 @@ import useUnreadMessageCount from '@/hooks/useUnreadMessageCount'
 import PinnedChannels from './PinnedChannels'
 import React, { useState } from 'react'
 import { BiBookmark, BiMessageAltDetail } from 'react-icons/bi'
-import { MdSchedule } from 'react-icons/md'
+import { MdSchedule,MdCalendarToday } from 'react-icons/md'
 
 
 import { __ } from '@/utils/translations'
@@ -53,6 +53,12 @@ export const SidebarBody = () => {
                         label='Service Schedule'
                         icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Service Schedule' />
+
+<SidebarItemForPage
+                        to={'appoinment'}
+                        label='Appoinments'
+                        icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='Appoinments' />
                                </>
                             )
                         }
