@@ -115,7 +115,7 @@ const useUnreadMessageCount = () => {
 
     useEffect(() => {
         // @ts-expect-error
-        const app_name = window.app_name || "Raven"
+        const app_name = window.app_name || "redeeChat"
         if (unread_count) {
             const total_count = unread_count.message.total_unread_count_in_channels + unread_count.message.total_unread_count_in_dms
 
