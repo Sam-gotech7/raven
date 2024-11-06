@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text, Box, Card, Avatar } from "@radix-ui/themes";
+import { Flex, Text, Box, Card, Avatar,Heading } from "@radix-ui/themes";
 import {
     Filter,
     useFrappeGetDocList,
@@ -11,8 +11,9 @@ import {
     FrappeConfig,
   } from "frappe-react-sdk";
   import { useContext,useState,useEffect } from 'react';
-  import { useNavigate } from 'react-router-dom';
-
+  import { useNavigate,Link } from 'react-router-dom';
+  import { BiChevronLeft } from "react-icons/bi"
+import { PageHeader } from '../layout/Heading/PageHeader';
 const InstructorSchedule = () => {
     const { currentUser } = useFrappeAuth();
     const { call, db } = useContext(FrappeContext) as FrappeConfig;
@@ -72,6 +73,15 @@ const InstructorSchedule = () => {
     }
 
   return (
+    <>
+    <PageHeader>
+                <Flex align='center' gap='3' className="h-8">
+                    <Link to='/channel' className="block bg-transparent hover:bg-transparent active:bg-transparent sm:hidden">
+                        <BiChevronLeft size='24' className="block text-gray-12" />
+                    </Link>
+                    <Heading size='5'>Todays Schedules</Heading>
+                </Flex>
+            </PageHeader>
     <Flex direction='column' gap='8' px='6' py='4'>
       <Flex justify='between' align='center'>
         <Flex direction='column' gap='0'>
@@ -121,6 +131,7 @@ const InstructorSchedule = () => {
         </Box>
       </Flex>
     </Flex>
+    </>
   );
 };
 export const Component = InstructorSchedule

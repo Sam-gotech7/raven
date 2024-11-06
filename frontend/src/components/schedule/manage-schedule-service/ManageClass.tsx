@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import { ErrorBanner } from "@/components/layout/AlertBanner";
 import { TableLoader } from "@/components/layout/Loaders/TableLoader";
 import { UserListContext } from "@/utils/users/UserListProvider";
-import { Button, Flex, Strong, Text, TextField } from "@radix-ui/themes";
+import { Button, Flex, Strong, Text, TextField,Heading,Box } from "@radix-ui/themes";
 import { Loader } from "@/components/common/Loader";
 import { BiSearch } from "react-icons/bi";
 import { ErrorCallout } from "@/components/common/Callouts/ErrorCallouts";
@@ -29,7 +29,10 @@ import { PageLengthSelector } from "../../feature/pagination/PageLengthSelector"
 import { PageSelector } from "../../feature/pagination/PageSelector";
 import { UsersTable } from "./ClassTable";
 import { isSystemManager } from "@/utils/roles";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
+import { PageHeader } from "@/components/layout/Heading/PageHeader";
+import { BiChevronLeft } from "react-icons/bi"
+
 interface AddUsersResponse {
   failed_users: User[];
   success_users: User[];
@@ -144,7 +147,16 @@ const options = [20, 50, 100, 200, 500]
     setLimit(numValue)
 }
   return (
-    <Flex direction="column" gap="4" px="6" py="4">
+ <>
+         <PageHeader>
+                <Flex align='center' gap='3' className="h-8">
+                    <Link to='/channel' className="block bg-transparent hover:bg-transparent active:bg-transparent sm:hidden">
+                        <BiChevronLeft size='24' className="block text-gray-12" />
+                    </Link>
+                    <Heading size='5'>Service Schedule List </Heading>
+                </Flex>
+            </PageHeader>
+    <Flex className="pt-16" direction="column" gap="4" px="6" py="4">
       <Flex justify="between" align="center">
         <Flex direction="column" gap="0">
           <Text size="3" className={"font-semibold"}>
@@ -264,6 +276,7 @@ const options = [20, 50, 100, 200, 500]
         )}
       </Flex>
     </Flex>
+ </>
   );
 };
 
