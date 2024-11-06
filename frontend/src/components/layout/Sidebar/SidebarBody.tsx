@@ -9,8 +9,7 @@ import PinnedChannels from './PinnedChannels'
 import React, { useState } from 'react'
 import { BiBookmark, BiMessageAltDetail } from 'react-icons/bi'
 import { MdSchedule,MdCalendarToday } from 'react-icons/md'
-
-
+import { FaCalendarCheck, FaServicestack } from 'react-icons/fa';
 import { __ } from '@/utils/translations'
 import { MdSportsGymnastics } from "react-icons/md";
 import { LuBookOpen } from "react-icons/lu";
@@ -19,14 +18,11 @@ import { isGymMemberonly,isGymInstructor } from '@/utils/roles'
 
 export const SidebarBody = () => {
     const [isMember, setMember] = useState(false);
-    const [instructorHubOpen, setInstructorHubOpen] = useState<boolean>(false); 
+
     const unread_count = useUnreadMessageCount()
     const isGymMemberUser = isGymMemberonly()
     const isGymInstructorRole = isGymInstructor()
-    const toggleInstructorHub = () => {
-        console.log(" hjhjjgf yffgygugku fgykgugkgkj")
-        setInstructorHubOpen(!instructorHubOpen);
-    };
+
     return (
         <ScrollArea type="hover" scrollbars="vertical" className='h-[calc(100vh-7rem)]'>
             <Flex direction='column' gap='2' className='overflow-x-hidden pb-12 sm:pb-0' px='2'>
@@ -42,45 +38,35 @@ export const SidebarBody = () => {
                         icon={<BiBookmark className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Saved Message' />
 
-{isGymInstructorRole && (
-                        <div onClick={toggleInstructorHub}>
-                            {/* Instructor Hub Toggle Item */}
-                            <SidebarItemForPage
-                                to={'#'}
-                                label='Instructor Hub'
-                                icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                iconLabel='Instructor Hub'
-                                 // Toggle Instructor Hub on click
-                            />
+                        {
+                            isGymInstructorRole && (
+                               <>
+                               <SidebarItemForPage
+                        to={'instructorhighlight'}
+                        label='Highlight'
+                        icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='instructorhighlight' />
+                                <SidebarItemForPage
+                        to={'schedule'}
+                        label='Class Schedule'
+                        icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
+                        iconLabel='Today Schedule' />
 
-                            {/* Expandable section for Instructor Hub items */}
-                            {instructorHubOpen && (
-                                <>
-                                    <SidebarItemForPage
-                                        to={'schedule'}
-                                        label='Class Schedule'
-                                        icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                        iconLabel='Today Schedule' />
-                                    <SidebarItemForPage
-                                        to={'service-schedule'}
-                                        label='Service Schedule'
-                                        icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                        iconLabel='Service Schedule' />
-                                    <SidebarItemForPage
-                                        to={'appointment'}
-                                        label='Appointments'
-                                        icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                        iconLabel='Appointments' />
-                                    <SidebarItemForPage
-                                        to={'instructorhighlight'}
-                                        label='Highlight'
-                                        icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                        iconLabel='Instructor Highlight' />
-                                </>
-                            )}
-                        </div>
-                    )}
+                        <SidebarItemForPage
+                        to={'service-schedule'}
+                        label='Service Schedule'
+                        icon={<FaServicestack className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />} 
+                        iconLabel='Service Schedule' />
 
+<SidebarItemForPage
+                        to={'appoinment'}
+                        label='Appoinments'
+                        icon={<FaCalendarCheck className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />} // New icon
+                        iconLabel='instructorhighlight' />
+
+                               </>
+                            )
+                        }
                         { !isGymMemberUser ? (
                         <>
                             <SidebarItemForPage
