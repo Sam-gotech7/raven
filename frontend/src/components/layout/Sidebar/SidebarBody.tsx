@@ -14,7 +14,7 @@ import { __ } from '@/utils/translations'
 import { MdSportsGymnastics } from "react-icons/md";
 import { LuBookOpen } from "react-icons/lu";
 import { isGymMemberonly,isGymInstructor } from '@/utils/roles'
-
+import { InstructorHubSidebar } from '@/components/feature/InstructorHubSidebar'
 
 export const SidebarBody = () => {
     const [isMember, setMember] = useState(false);
@@ -38,52 +38,21 @@ export const SidebarBody = () => {
                         icon={<BiBookmark className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
                         iconLabel='Saved Message' />
 
-                        {
+                        
+                   
+
+{
                             isGymInstructorRole && (
                                <>
-                               <SidebarItemForPage
-                        to={'instructorhighlight'}
-                        label='Highlight'
-                        icon={<MdCalendarToday className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                        iconLabel='instructorhighlight' />
-                                <SidebarItemForPage
-                        to={'schedule'}
-                        label='Class Schedule'
-                        icon={<MdSchedule className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                        iconLabel='Today Schedule' />
-
-                        <SidebarItemForPage
-                        to={'service-schedule'}
-                        label='Service Schedule'
-                        icon={<FaServicestack className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />} 
-                        iconLabel='Service Schedule' />
-
-<SidebarItemForPage
-                        to={'appoinment'}
-                        label='Appoinments'
-                        icon={<FaCalendarCheck className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />} // New icon
-                        iconLabel='instructorhighlight' />
-
+                            
+                            <InstructorHubSidebar/>
                                </>
                             )
                         }
-                        { !isGymMemberUser ? (
-                        <>
-                            <SidebarItemForPage
-                                to={'workout'}
-                                label='Workout'
-                                icon={<MdSportsGymnastics className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                iconLabel='Workout' />
-                            <SidebarItemForPage
-                                to={'class'}
-                                label='Class'
-                                icon={<LuBookOpen className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />}
-                                iconLabel='Class' />
-                        </>
-                    ) : null}
                         
                     <PinnedChannels unread_count={unread_count?.message} />
                 </Flex>
+                
                 <ChannelList unread_count={unread_count?.message} />
                 <DirectMessageList unread_count={unread_count?.message} />
                 <DirectMessageListInstructor unread_count={unread_count?.message} />
