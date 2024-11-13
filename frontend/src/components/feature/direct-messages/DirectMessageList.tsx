@@ -15,7 +15,6 @@ import { useStickyState } from "@/hooks/useStickyState"
 import clsx from "clsx"
 import { UserFields, UserListContext } from "@/utils/users/UserListProvider"
 import { replaceCurrentUserFromDMChannelName } from "@/utils/operations"
-import { __ } from "@/utils/translations"
 
 export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCountData }) => {
 
@@ -38,7 +37,7 @@ export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCount
             <SidebarGroupItem className={'gap-1 pl-1'}>
                 <Flex width='100%' justify='between' align='center' gap='2' pr='2' className="group">
                     <Flex align='center' gap='2' width='100%' onClick={toggle} className="cursor-default select-none">
-                        <SidebarGroupLabel className="pt-0.5">{__("Members")}</SidebarGroupLabel>
+                        <SidebarGroupLabel className="pt-0.5">Members</SidebarGroupLabel>
                         <Box className={clsx('transition-opacity ease-in-out duration-200', !showData && unread_count && unread_count?.total_unread_count_in_dms > 0 ? 'opacity-100' : 'opacity-0')}>
                             <SidebarBadge>{unread_count?.total_unread_count_in_dms}</SidebarBadge>
                         </Box>
@@ -64,12 +63,8 @@ export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCount
 const DirectMessageItemList = ({ unread_count }: { unread_count?: UnreadCountData }) => {
     const { dm_channels } = useContext(ChannelListContext) as ChannelListContextType
 
-    const { enabledInstructors,users,enabledUsers } = useContext(UserListContext)
-    console.log(enabledInstructors, 'insstru')
-    const newusers = enabledInstructors?.map((user:any)=> user.name)
-    const new_channels = dm_channels?.filter((cur) => !newusers.includes(cur?.peer_user_id));
     return <>
-        {new_channels.map((channel) => <DirectMessageItem
+        {dm_channels.map((channel) => <DirectMessageItem
             key={channel.name}
             channel={channel}
             unreadCount={unread_count?.channels ?? []}
@@ -131,6 +126,17 @@ const ExtraUsersItemList = () => {
     const { dm_channels, mutate } = useContext(ChannelListContext) as ChannelListContextType
 
     const { enabledUsers } = useContext(UserListContext)
+    
+    const isOnlyMembers = enabledUsers?.filter(
+        (user) => user.enabled === 1 && user.is_instructor === false
+    );
+
+    const isOnlyIns = enabledUsers?.filter(
+        (user) => user.enabled === 1 && user.is_instructor === true
+    );
+
+    console.log(isOnlyMembers)
+    console.log(isOnlyIns)
     const { call } = useFrappePostCall<{ message: string }>("raven.api.raven_channel.create_direct_message_channel")
 
     const navigate = useNavigate()
@@ -142,7 +148,7 @@ const ExtraUsersItemList = () => {
                 mutate()
             })
             .catch((e) => {
-                toast.error(__("Could not create channel"), {
+                toast.error('Could not create channel', {
                     description: getErrorMessage(e)
                 })
             })
@@ -150,7 +156,7 @@ const ExtraUsersItemList = () => {
 
     const filteredUsers = useMemo(() => {
         // Show only users who are not in the DM list
-        return enabledUsers.filter((user) => !dm_channels.find((channel) => channel.peer_user_id === user.name)).slice(0, 5)
+        return isOnlyMembers.filter((user) => !dm_channels.find((channel) => channel.peer_user_id === user.name)).slice(0, 5)
     }, [enabledUsers, dm_channels])
 
     return <>{filteredUsers.map((user) => <ExtraUsersItem

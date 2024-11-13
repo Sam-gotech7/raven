@@ -23,8 +23,6 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         revalidateOnReconnect: false,
     })
 
-    console.log("hjjjgffdghjkjj", data)
-
     /** TODO: If a bulk import happens, this gets called multiple times potentially causing the server to go down.
      * Instead, throttle this - wait for all events to subside
      */

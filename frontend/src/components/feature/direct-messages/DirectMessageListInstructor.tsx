@@ -63,13 +63,9 @@ export const DirectMessageListInstructor = ({ unread_count }: { unread_count?: U
 
 const DirectMessageItemList = ({ unread_count }: { unread_count?: UnreadCountData }) => {
     const { dm_channels } = useContext(ChannelListContext) as ChannelListContextType
-console.log(dm_channels, 'dmchannel')
-
 const { enabledInstructors,users,enabledUsers } = useContext(UserListContext)
-console.log(enabledInstructors, 'insstru')
 const newusers = enabledInstructors?.map((user:any)=> user.name)
 const new_channels = dm_channels?.filter((cur)=>newusers.includes(cur?.peer_user_id))
-console.log(new_channels, 'new channels')
     return <>
         {new_channels?.map((channel) => <DirectMessageItem
             key={channel.name}
@@ -134,9 +130,6 @@ const ExtraUsersItemList = () => {
 
     const { enabledInstructors,users,enabledUsers } = useContext(UserListContext)
    
-    console.log('ei',enabledInstructors)
-    console.log('eu',enabledUsers)
-
     const { call } = useFrappePostCall<{ message: string }>("raven.api.raven_channel.create_direct_message_channel")
 
     const navigate = useNavigate()
@@ -155,8 +148,6 @@ const ExtraUsersItemList = () => {
     }
 
     const filteredUsers = useMemo(() => {
-        // Show only users who are not in the DM list
-        console.log(enabledInstructors ,' enable users')
         return enabledInstructors.filter((user:any) => !dm_channels.find((channel) => channel.peer_user_id === user.name)).slice(0, 5)
     }, [enabledInstructors, dm_channels])
 
