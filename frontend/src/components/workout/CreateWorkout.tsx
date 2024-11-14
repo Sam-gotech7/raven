@@ -105,7 +105,7 @@ const CreateWorkout = () => {
       weight: "",
       rest: "",
       thumbnail: null,
-      supportVideo: null,
+      supportVideo: "",
     },
   ]);
 
@@ -131,27 +131,33 @@ const CreateWorkout = () => {
 
 
 const handleLinkChange=(index:number,e: any)=>{
-const toastId = toast.loading("uploading Link");
+// const toastId = toast.loading("uploading Link");
 const updatedExerciseList = [...exerciseList];
 
-const updatedFields = {
-              file_url:e?.nativeEvent?.data,
-                is_private: false,
-                doctype: "Workout Master",
-                docname: workoutForm.workoutName,
-                folder:"Home",
-                fieldname:"support_link"
-            };
+// const updatedFields = {
+//               file_url:e?.nativeEvent?.data,
+//                 is_private: false,
+//                 // doctype: "Workout Master",
+//                 // docname: workoutForm.workoutName,
+//                 folder:"Home",
+//                 fieldname:"support_link"
+//             };
 
-                  call
-                  .post("upload_file",updatedFields)
-                  .then((r) =>{
-                  updatedExerciseList[index]["supportVideo"] =r.message.file_url;
-                  setExerciseList(updatedExerciseList);
-                    toast.dismiss(toastId);
-                    reset();
-                  })
-                  .catch((error) => console.error(error));
+                  // call
+                  // .post("upload_file",updatedFields)
+                  // .then((r) =>{
+                  // updatedExerciseList[index]["supportVideo"] =r.message.file_url;
+                  // setExerciseList(updatedExerciseList);
+                  //   toast.dismiss(toastId);
+                  //   reset();
+                  // })
+                  // .catch((error) => console.error(error));
+
+                  updatedExerciseList[index]["supportVideo"] =e?.nativeEvent?.data;
+                  setExerciseList(updatedExerciseList)
+                  console.log(exerciseList)
+                  // toast.dismiss(toastId);
+                  reset();
 }
 
 
@@ -160,7 +166,7 @@ const handleFileChange = (index: number, e: any) => {
   const updatedExerciseList = [...exerciseList];
 
   if (name === "thumbnail") {
-    const toastId = toast.loading("uploading thubnail");
+    const toastId = toast.loading("uploading thumbnail");
     const file = files[0];
     setFile(file); // Set the selected file for upload
     if (file && workoutForm?.workoutName) {
@@ -210,7 +216,7 @@ const handleFileChange = (index: number, e: any) => {
         weight: "",
         rest: "",
         thumbnail: null,
-        supportVideo: null,
+        supportVideo: "",
       },
     ]);
   };
@@ -282,7 +288,7 @@ const handleFileChange = (index: number, e: any) => {
     console.log(data);
     db.createDoc("Workout Master", data)
       .then((doc) => {
-        toast.success("Workout Add successfully");
+        toast.success("Workout Add successfully")
         navigate('/channel/workout');
       })
       .catch((error) => console.error(error));
@@ -436,7 +442,7 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    borderColor:  "#484E54",
                     boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
                       borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -489,7 +495,7 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    borderColor:  "#484E54",
                     boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
                       borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -600,7 +606,7 @@ const handleFileChange = (index: number, e: any) => {
                           ...baseStyles,
                           backgroundColor:
                             appearance === "dark" ? "#17191A" : "#fff",
-                          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                            borderColor:  "#484E54",
                           boxShadow: state.isFocused
                             ? "0 0 0 1px #6A4CE3"
                             : "none",
@@ -711,12 +717,13 @@ const handleFileChange = (index: number, e: any) => {
                       {" "}
                       Thumbnail
                     </Label>
+
                     <input
                     required
                       type="file"
                       name="thumbnail"
                       accept="image/*"
-                      className="border border-[#c1c1c1] px-[10px] py-[5px] rounded-md w-full"
+                      className="border border-[#484E54] px-[10px] py-[5px] rounded-md w-full"
                       onChange={(e) => handleFileChange(index, e)}
                     />
                   </Box>
@@ -774,9 +781,12 @@ const handleFileChange = (index: number, e: any) => {
 
                       
                       </Flex>
-                    {exerciseList[index]["supportVideo"] && <Dialog.Close>
+                    {
+                      <Dialog.Close>
+
                         <Button>Save</Button>
-                    </Dialog.Close>}
+                    </Dialog.Close>
+                    }
                 </Dialog.Content>
 
 
@@ -831,7 +841,7 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    borderColor:  "#484E54",
                     boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
                       borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -886,7 +896,7 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    borderColor:  "#484E54",
                     boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
                       borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -962,7 +972,7 @@ const handleFileChange = (index: number, e: any) => {
         control: (baseStyles, state) => ({
           ...baseStyles,
           backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+          borderColor:  "#484E54",
           boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
           "&:hover": {
             borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -1105,7 +1115,7 @@ const handleFileChange = (index: number, e: any) => {
       control: (baseStyles, state) => ({
         ...baseStyles,
         backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-        borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+        borderColor:  "#484E54",
         boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
         "&:hover": {
           borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -1155,7 +1165,7 @@ const handleFileChange = (index: number, e: any) => {
                 value={workoutForm.creationDate}
                 onChange={handleInputChange}
                 placeholder="Creation Date"
-                className="border border-[#c1c1c1] px-[1px] py-[7px] rounded-md w-full"
+                className="border border-[#484E54] px-[1px] py-[7px] rounded-md w-full"
               />
             
             </Box>
@@ -1167,9 +1177,6 @@ const handleFileChange = (index: number, e: any) => {
                 value={workoutForm.overallRating}
                 onChange={handleInputChange}
                 placeholder="Overall Rating"
-                min={0}
-                max={5}
-                step={1}
               />
         
             </Box>

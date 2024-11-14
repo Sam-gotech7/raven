@@ -5,7 +5,7 @@ import ChannelItem from './ChannelItem'
 const ChannelList = () => {
 
     const { channels } = useFetchChannelList()
-
+console.log(channels)
     const nonArchivedChannels = channels.filter((channel) => !channel.is_archived)
     return (
         <Command.Group heading="Channels">

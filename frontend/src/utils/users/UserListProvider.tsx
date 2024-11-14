@@ -6,10 +6,11 @@ import { Box, Flex, Link } from "@radix-ui/themes";
 import { RavenUser } from "@/types/Raven/RavenUser";
 
 
-export const UserListContext = createContext<{ users: UserFields[], enabledUsers: UserFields[], enabledInstructors:any }>({
+export const UserListContext = createContext<{ users: UserFields[], enabledUsers: UserFields[], enabledInstructors:any, enabledMembers:any }>({
     users: [],
     enabledUsers: [],
-    enabledInstructors: []
+    enabledInstructors: [],
+    enabledMembers:[]
 })
 
 export type UserFields = Pick<RavenUser, 'name' | 'full_name' | 'user_image' | 'first_name' | 'enabled' | 'type' | 'availability_status' | 'custom_status' | 'is_instructor'>
@@ -33,11 +34,13 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         globalMutate(`channel_list`)
     })
 
-    const { users, enabledUsers, enabledInstructors } = useMemo(() => {
+    const { users, enabledUsers, enabledInstructors, enabledMembers } = useMemo(() => {
         return {
             users: data?.message ?? [],
             enabledUsers: data?.message?.filter(user => user.enabled === 1) ?? [],
-            enabledInstructors: data?.message?.filter(user =>  user.is_instructor == true) ?? []
+            enabledInstructors: data?.message?.filter(user => user.enabled === 1 && user.is_instructor == true) ?? [],
+            enabledMembers: data?.message?.filter(user => user.enabled === 1 && user.is_instructor == false) ?? []
+
         }
     }, [data])
 
@@ -54,7 +57,7 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         </Flex>
     }
 
-    return <UserListContext.Provider value={{ users, enabledUsers, enabledInstructors }}>
+    return <UserListContext.Provider value={{ users, enabledUsers, enabledInstructors,enabledMembers }}>
         {children}
     </UserListContext.Provider>
 }

@@ -438,7 +438,7 @@ const handleFileChange = (index: number, e: any) => {
                                     control: (baseStyles, state) => ({
                                         ...baseStyles,
                                         backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
-                                        borderColor: state.isFocused ? '#6A4CE3' : '#c1c1c1', 
+                                        borderColor:  "#484E54",
                                         boxShadow: state.isFocused ? '0 0 0 1px #6A4CE3' : 'none',
                                         '&:hover': {
                                             borderColor: state.isFocused ? '#6A4CE3' : '#666',
@@ -485,7 +485,7 @@ const handleFileChange = (index: number, e: any) => {
                                     control: (baseStyles, state) => ({
                                         ...baseStyles,
                                         backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
-                                        borderColor: state.isFocused ? '#6A4CE3' : '#c1c1c1', 
+                                        borderColor:  "#484E54",
                                         boxShadow: state.isFocused ? '0 0 0 1px #6A4CE3' : 'none',
                                         '&:hover': {
                                             borderColor: state.isFocused ? '#6A4CE3' : '#666',
@@ -587,7 +587,7 @@ const handleFileChange = (index: number, e: any) => {
                           ...baseStyles,
                           backgroundColor:
                             appearance === "dark" ? "#17191A" : "#fff",
-                          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                            borderColor:  "#484E54",
                           boxShadow: state.isFocused
                             ? "0 0 0 1px #6A4CE3"
                             : "none",
@@ -707,7 +707,7 @@ const handleFileChange = (index: number, e: any) => {
                   <input
                     type="text"
                     readOnly
-                    className="border border-[#c1c1c1] px-[10px] py-[7px] rounded-md w-full cursor-pointer"
+                    className="border border-[#484E54] px-[10px] py-[7px] rounded-md w-full cursor-pointer"
                     value={exerciseList[index]["thumbnail"]}
                     placeholder="No file selected"
                     onClick={() => document.getElementById(`fileInput-${index}`)?.click()} 
@@ -833,7 +833,7 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    borderColor:  "#484E54",
                     boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
                       borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -888,7 +888,7 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    borderColor:  "#484E54",
                     boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
                       borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -964,7 +964,7 @@ const handleFileChange = (index: number, e: any) => {
         control: (baseStyles, state) => ({
           ...baseStyles,
           backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+          borderColor:  "#484E54",
           boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
           "&:hover": {
             borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -1106,7 +1106,7 @@ const handleFileChange = (index: number, e: any) => {
       control: (baseStyles, state) => ({
         ...baseStyles,
         backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-        borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+        borderColor:  "#484E54",
         boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
         "&:hover": {
           borderColor: state.isFocused ? "#6A4CE3" : "#666",
@@ -1156,7 +1156,7 @@ const handleFileChange = (index: number, e: any) => {
                 value={workoutForm.creationDate}
                 onChange={handleInputChange}
                 placeholder="Creation Date"
-                className="border border-[#c1c1c1] px-[1px] py-[7px] rounded-md w-full"
+                className="border border-[#484E54] px-[1px] py-[7px] rounded-md w-full"
               />
             
             </Box>

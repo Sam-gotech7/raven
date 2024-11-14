@@ -17,16 +17,26 @@ import { getErrorMessage } from '@/components/layout/AlertBanner/ErrorBanner'
 const UserList = () => {
 
     const { dm_channels } = useFetchChannelList()
+    cancelIdleCallback
 
-    const { users } = useContext(UserListContext)
+    const { users , enabledInstructors,enabledMembers} = useContext(UserListContext)
 
     const usersWithoutChannels = users.filter((user) => !dm_channels.find((channel) => channel.peer_user_id === user.name))
+    // const instructorWithoutChannels = enabledInstructors.filter((user:any) => !dm_channels.find((channel) => channel.peer_user_id === user.name))
 
     return (
+      <>
         <Command.Group heading="Members">
-            {dm_channels.map((channel) => <DMChannelItem key={channel.name} channelID={channel.name} channelName={channel.channel_name} peer_user_id={channel.peer_user_id} />)}
-            {usersWithoutChannels.map((user) => <UserWithoutDMItem key={user.name} userID={user.name} />)}
+            {/* {dm_channels.map((channel) => <DMChannelItem key={channel.name} channelID={channel.name} channelName={channel.channel_name} peer_user_id={channel.peer_user_id} />)} */}
+            {enabledMembers.map((user:any) => <UserWithoutDMItem key={user.name} userID={user.name} />)}
         </Command.Group>
+
+        <Command.Group heading="Instructors">
+            {/* {dm_channels.map((channel) => <DMChannelItem key={channel.name} channelID={channel.name} channelName={channel.channel_name} peer_user_id={channel.peer_user_id} />)} */}
+            {enabledInstructors.map((user:any) => <UserWithoutDMItem key={user.name} userID={user.name} />)}
+        </Command.Group>
+      
+      </>
     )
 }
 
