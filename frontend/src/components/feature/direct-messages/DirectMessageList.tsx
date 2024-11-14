@@ -62,9 +62,12 @@ export const DirectMessageList = ({ unread_count }: { unread_count?: UnreadCount
 
 const DirectMessageItemList = ({ unread_count }: { unread_count?: UnreadCountData }) => {
     const { dm_channels } = useContext(ChannelListContext) as ChannelListContextType
-
+    const { enabledUsers, enabledInstructors } = useContext(UserListContext)
+    const instructorNames = enabledInstructors?.map((user: any) => user.name)
+    const new_channels = dm_channels?.filter((channel) => !instructorNames.includes(channel.peer_user_id))
+    
     return <>
-        {dm_channels.map((channel) => <DirectMessageItem
+        {new_channels?.map((channel) => <DirectMessageItem
             key={channel.name}
             channel={channel}
             unreadCount={unread_count?.channels ?? []}
@@ -124,6 +127,7 @@ export const DirectMessageItemElement = ({ channel, unreadCount }: { channel: DM
 const ExtraUsersItemList = () => {
 
     const { dm_channels, mutate } = useContext(ChannelListContext) as ChannelListContextType
+
 
     const { enabledUsers } = useContext(UserListContext)
     

@@ -9,6 +9,7 @@ import { MdSchedule,MdCalendarToday } from 'react-icons/md'
 import { FaCalendarCheck, FaServicestack } from 'react-icons/fa';
 import { MdSportsGymnastics } from "react-icons/md";
 import { LuBookOpen } from "react-icons/lu";
+import { useStickyState } from "@/hooks/useStickyState"
 export const InstructorHubSidebar = () => {
     const [showServices, setShowServices] = useState(false);
 
@@ -73,12 +74,12 @@ export const InstructorHubSidebar = () => {
                     </Link>
 
 
-                    <Link to="/channel/class" className="no-underline text-current"> 
+                    {/* <Link to="/channel/class" className="no-underline text-current"> 
                         <Flex align="center" gap="2" className="pl-4 cursor-pointer">
                             <LuBookOpen className='text-gray-12 dark:text-gray-300 mt-0.5 sm:text-sm text-base' />
                             <Text as="span">Class</Text>
                         </Flex>
-                    </Link>
+                    </Link> */}
                    
                 </div>
             </SidebarGroupList>
