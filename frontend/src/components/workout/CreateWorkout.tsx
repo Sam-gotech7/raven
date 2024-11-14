@@ -6,20 +6,26 @@ import {
   useFrappeAuth,
   useFrappeFileUpload,
 } from "frappe-react-sdk";
-import { Link } from "react-router-dom";
+import { AlertDialog, Box, Dialog, Flex,Button, IconButton, Tooltip } from "@radix-ui/themes"
+import { DIALOG_CONTENT_CLASS } from "@/utils/layout/dialog"
+import { Link, useNavigate } from "react-router-dom";
 import { PageHeader } from "../layout/Heading/PageHeader";
 import { Label, ErrorText, HelperText } from "@/components/common/Form";
 import { Label as RadixLabel } from "@radix-ui/react-label";
 import { Stack, HStack } from "@/components/layout/Stack";
 import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
-import { Heading, TextField, TextArea, Box, Flex } from "@radix-ui/themes";
+import { Heading, TextField, TextArea,Radio } from "@radix-ui/themes";
 import { BiChevronLeft } from "react-icons/bi";
 import { useTheme } from "../../ThemeProvider"; // Import the theme context
 import { MdDelete } from "react-icons/md";
 import Select from "react-select";
 import { toast } from "sonner";
 
+
+
 const CreateWorkout = () => {
+  const [isVideoUpload, setIsVideoUpload] = useState(true);
+  const navigate=useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { appearance } = useTheme(); // Get the current theme (light or dark)
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,9 +39,31 @@ const CreateWorkout = () => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [targetedMuscleOptions, setTargetedMuscleOptions] = useState([]);
   const [exerciseListOptions, setExerciseListOptions] = useState([]);
-  const { upload, error, loading, progress, isCompleted, reset } =
+  // const [link,setLink]=useState("")
+  const { upload,upload_Link, error, loading, progress, isCompleted, reset } =
     useFrappeFileUpload();
   const [file, setFile] = useState<File>();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    fetchCompany();
+    fetchWorkoutCategory();
+    fetchTargetedMuscles();
+    fetchGymEquipmentOptions();
+    fetchAuthor();
+    fetchExerciseList();
+
+  }, []);
+
+  const openModal = (e) => {
+    e.preventDefault();
+    setIsOpen(true);
+  };
+
+  const closeModal = (e) => {
+    e.preventDefault();
+    setIsOpen(false);
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files[0];
@@ -80,6 +108,8 @@ const CreateWorkout = () => {
       supportVideo: null,
     },
   ]);
+
+
   const visibilityStatusOptions = [
     { value: "Private", label: "Private" },
     { value: "Public", label: "Public" },
@@ -99,46 +129,75 @@ const CreateWorkout = () => {
     setExerciseList(updatedExerciseList);
   };
 
-  const handleFileChange = (index: number, e: any) => {
-    const { name, files } = e.target;
-    const updatedExerciseList = [...exerciseList];
 
-    if (name === "thumbnail") {
-      const toastId = toast.loading("uploading thubnail");
-      const file = files[0];
-      setFile(file); // Set the selected file for upload
-      if (file && workoutForm?.workoutName) {
-        upload(file, {
-          isPrivate: false,
-          doctype: "Workout Master",
-          docname: workoutForm.workoutName,
-        }).then((r) => {
-          updatedExerciseList[index][name] = r.file_url;
-          setExerciseList(updatedExerciseList);
-          toast.dismiss(toastId);
-          reset();
-        });
-      }
-    } else if (name === "supportVideo") {
-      const toastId = toast.loading("uploading Video");
-      const file = files[0];
-      setFile(file);
-      if (file && workoutForm?.workoutName) {
-        upload(file, {
-          isPrivate: false,
-          doctype: "Workout Master",
-          docname: workoutForm.workoutName,
-        }).then((r) => {
-          updatedExerciseList[index][name] = r.file_url;
-          setExerciseList(updatedExerciseList);
-          toast.dismiss(toastId);
-          reset();
-        });
-      }
+const handleLinkChange=(index:number,e: any)=>{
+const toastId = toast.loading("uploading Link");
+const updatedExerciseList = [...exerciseList];
+
+const updatedFields = {
+              file_url:e?.nativeEvent?.data,
+                is_private: false,
+                doctype: "Workout Master",
+                docname: workoutForm.workoutName,
+                folder:"Home",
+                fieldname:"support_link"
+            };
+
+                  call
+                  .post("upload_file",updatedFields)
+                  .then((r) =>{
+                  updatedExerciseList[index]["supportVideo"] =r.message.file_url;
+                  setExerciseList(updatedExerciseList);
+                    toast.dismiss(toastId);
+                    reset();
+                  })
+                  .catch((error) => console.error(error));
+}
+
+
+const handleFileChange = (index: number, e: any) => {
+  const { name, files } = e.target;
+  const updatedExerciseList = [...exerciseList];
+
+  if (name === "thumbnail") {
+    const toastId = toast.loading("uploading thubnail");
+    const file = files[0];
+    setFile(file); // Set the selected file for upload
+    if (file && workoutForm?.workoutName) {
+      upload(file, {
+        isPrivate: false,
+        doctype: "Workout Master",
+        docname: workoutForm.workoutName,
+      }).then((r) => {
+
+        updatedExerciseList[index][name] = r.file_url;
+        setExerciseList(updatedExerciseList);
+        toast.dismiss(toastId);
+        console.log(updatedExerciseList[index])
+        reset();
+      });
     }
+  } else if (name === "supportVideo") {
+    const toastId = toast.loading("uploading Video");
+    const file = files[0];
+    setFile(file);
+    if (file && workoutForm?.workoutName) {
+      upload(file, {
+        isPrivate: false,
+        doctype: "Workout Master",
+        docname: workoutForm.workoutName,
+      }).then((r) => {
+        updatedExerciseList[index][name] = r.file_url;
+        setExerciseList(updatedExerciseList);
+        toast.dismiss(toastId);
+        console.log(updatedExerciseList[index],e)
+        reset();
+      });
+    }
+  }
 
-    setExerciseList(updatedExerciseList);
-  };
+  setExerciseList(updatedExerciseList);
+};
 
   // Add new exercise
   const addExercise = () => {
@@ -200,7 +259,7 @@ const CreateWorkout = () => {
       support_video: exer?.supportVideo,
     }));
     const data = {
-      docstatus: 0,
+      docstatus: 1,
       doctype: "Workout Master",
       name: randomName,
       owner: currentUser,
@@ -224,6 +283,7 @@ const CreateWorkout = () => {
     db.createDoc("Workout Master", data)
       .then((doc) => {
         toast.success("Workout Add successfully");
+        navigate('/channel/workout');
       })
       .catch((error) => console.error(error));
   };
@@ -328,15 +388,6 @@ const CreateWorkout = () => {
     setWorkoutForm((prev) => ({ ...prev, [name]: selectedOptions || [] }));
   };
 
-  useEffect(() => {
-    fetchCompany();
-    fetchWorkoutCategory();
-    fetchTargetedMuscles();
-    fetchGymEquipmentOptions();
-    fetchAuthor();
-    fetchExerciseList();
-  }, []);
-
   return (
     <>
       <PageHeader>
@@ -361,8 +412,9 @@ const CreateWorkout = () => {
             style={{ width: "100%" }}
           >
             <Box style={{ flex: 1 }}>
-              <Label>Workout Name</Label>
+              <Label isRequired>Workout Name</Label>
               <TextField.Root
+                required
                 type="text"
                 name="workoutName"
                 value={workoutForm.workoutName}
@@ -371,8 +423,9 @@ const CreateWorkout = () => {
               />
             </Box>
             <Box style={{ flex: 1 }}>
-              <Label>Company</Label>
+              <Label isRequired>Company</Label>
               <Select
+                required
                 value={workoutForm.company}
                 onChange={(selectedOption) =>
                   handleSelectChange("company", selectedOption)
@@ -383,10 +436,10 @@ const CreateWorkout = () => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -422,9 +475,10 @@ const CreateWorkout = () => {
             style={{ width: "100%" }}
           >
             <Box style={{ flex: 1 }}>
-              <Label> Category</Label>
+              <Label isRequired> Category</Label>
 
               <Select
+                required
                 value={workoutForm.category}
                 onChange={(selectedOption) =>
                   handleSelectChange("category", selectedOption)
@@ -435,10 +489,10 @@ const CreateWorkout = () => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -467,9 +521,10 @@ const CreateWorkout = () => {
               />
             </Box>
             <Box style={{ flex: 1 }}>
-              <Label>Duration (mins)</Label>
+              <Label isRequired>Duration (mins)</Label>
               <TextField.Root
-                type="text"
+              required
+                type="number"
                 name="duration"
                 value={workoutForm.duration}
                 onChange={handleInputChange}
@@ -483,9 +538,10 @@ const CreateWorkout = () => {
             style={{ width: "100%" }}
           >
             <Box style={{ flex: 1 }}>
-              <Label> Description</Label>
+              <Label isRequired> Description</Label>
 
               <TextArea
+                required
                 name="description"
                 value={workoutForm.description}
                 onChange={handleInputChange}
@@ -500,9 +556,10 @@ const CreateWorkout = () => {
             style={{ width: "100%" }}
           >
             <Box style={{ flex: 1 }}>
-              <Label> Notes/Instructions</Label>
+              <Label isRequired> Notes/Instructions</Label>
 
               <TextArea
+                required
                 name="notes"
                 value={workoutForm.notes}
                 onChange={handleInputChange}
@@ -523,16 +580,17 @@ const CreateWorkout = () => {
                   style={{ width: "100%" }}
                 >
                   <Box style={{ flex: 1 }}>
-                    <Label>Exercise Name</Label>
+                    <Label isRequired>Exercise Name</Label>
 
                     <Select
+                    required
                       value={exerciseListOptions.find(
                         (option) => option.value === exercise.exerciseName
                       )}
                       onChange={(selectedOption) => {
                         const updatedExerciseList = [...exerciseList];
                         updatedExerciseList[index].exerciseName =
-                          selectedOption.value;
+                        selectedOption.value;
                         setExerciseList(updatedExerciseList);
                       }}
                       options={exerciseListOptions}
@@ -542,12 +600,12 @@ const CreateWorkout = () => {
                           ...baseStyles,
                           backgroundColor:
                             appearance === "dark" ? "#17191A" : "#fff",
-                          borderColor: state.isFocused ? "#007BFF" : "#444",
+                          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
                           boxShadow: state.isFocused
-                            ? "0 0 0 1px #007BFF"
+                            ? "0 0 0 1px #6A4CE3"
                             : "none",
                           "&:hover": {
-                            borderColor: state.isFocused ? "#007BFF" : "#666",
+                            borderColor: state.isFocused ? "#6A4CE3" : "#666",
                           },
                         }),
                         menu: (baseStyles) => ({
@@ -578,10 +636,11 @@ const CreateWorkout = () => {
                   </Box>
 
                   <Box style={{ flex: 1 }}>
-                    <Label htmlFor="sets">Sets</Label>
+                    <Label htmlFor="sets" isRequired>Sets</Label>
 
                     <TextField.Root
-                      type="text"
+                    required
+                      type="number"
                       name="sets"
                       value={exercise.sets}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -602,7 +661,8 @@ const CreateWorkout = () => {
                     </Label>
 
                     <TextField.Root
-                      type="text"
+                    required
+                      type="number"
                       name="reps"
                       value={exercise.reps}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -616,7 +676,8 @@ const CreateWorkout = () => {
                     </Label>
 
                     <TextField.Root
-                      type="text"
+                    required
+                      type="number"
                       name="weight"
                       value={exercise.weight}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -637,7 +698,8 @@ const CreateWorkout = () => {
                     </Label>
 
                     <TextField.Root
-                      type="text"
+                    required
+                      type="number"
                       name="rest"
                       value={exercise.rest}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -649,11 +711,12 @@ const CreateWorkout = () => {
                       {" "}
                       Thumbnail
                     </Label>
-
                     <input
+                    required
                       type="file"
                       name="thumbnail"
                       accept="image/*"
+                      className="border border-[#c1c1c1] px-[10px] py-[5px] rounded-md w-full"
                       onChange={(e) => handleFileChange(index, e)}
                     />
                   </Box>
@@ -665,15 +728,61 @@ const CreateWorkout = () => {
                   style={{ width: "100%" }}
                 >
                   <Box style={{ flex: 1 }}>
-                    <Label htmlFor="supportVideo"> Support Video</Label>
+                     <Label htmlFor="supportVideo" isRequired> Support Video</Label>
 
-                    <input
-                      type="file"
-                      name="supportVideo"
-                      accept="video/*"
-                      onChange={(e) => handleFileChange(index, e)}
-                      className="border border-[#484E54] px-[1px] py-[7px] rounded-md w-full"
-                    />
+      <Dialog.Root>
+                <Dialog.Trigger>
+                        <button
+                      type="button"
+                      className="text-blue-500 cu px-3 py-2 bg-transparent border border-blue-900 rounded-lg hover:text-blue-700"
+                    >
+                      {exerciseList[index]["supportVideo"] ? `${exerciseList[index]["supportVideo"].substr(7,20)}...` : `Upload Support Video`}
+                    </button>
+                </Dialog.Trigger>
+
+                <Dialog.Content maxWidth="450px">
+                      <Dialog.Title>Upload Video or Video Link</Dialog.Title>
+                      {/* <Dialog.Description size="2" mb="4">
+                      </Dialog.Description> */}
+                      <Flex gap="2">
+                          <Radio variant="surface" name="surface" value="1" defaultChecked onChange={()=>setIsVideoUpload(true)}/>
+                          <label>Upload Video</label>
+                          <Radio variant="surface" name="surface" value="2" onChange={()=>setIsVideoUpload(false)}/>
+                          <label>Upload Video Link</label>
+	                    </Flex>
+                      <Flex direction="column" gap="3" m="4">
+                      {!isVideoUpload?(
+                      <TextField.Root
+                            required
+                            type="text"
+                            name="supportLink"
+                            onChange={(e) => {e?.nativeEvent?.data && handleLinkChange(index,e);}}
+                            placeholder="Enter Video Link"
+                          />
+                          ):
+                          (
+                            <input
+                              required
+                              type="file"
+                              name="supportVideo"
+                              accept="video/*"
+                              onChange={(e) => handleFileChange(index, e)}
+                              className="border border-[#484E54] px-[10px] py-[7px] rounded-full w-full"
+                            />
+                          )
+                      }
+
+                      
+                      </Flex>
+                    {exerciseList[index]["supportVideo"] && <Dialog.Close>
+                        <Button>Save</Button>
+                    </Dialog.Close>}
+                </Dialog.Content>
+
+
+      </Dialog.Root>
+
+      
                   </Box>
                   <Box style={{ flex: 1 }}>
                     <button
@@ -704,10 +813,11 @@ const CreateWorkout = () => {
             style={{ width: "100%" }}
           >
             <Box style={{ flex: 1 }}>
-              <Label> Targeted Muscle Group</Label>
+              <Label isRequired> Targeted Muscle Group</Label>
 
               <Select
                 isMulti
+                required
                 value={workoutForm.targetedMuscleGroup}
                 onChange={(selectedOptions) =>
                   handleMultiSelectChange(
@@ -721,10 +831,10 @@ const CreateWorkout = () => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -762,7 +872,7 @@ const CreateWorkout = () => {
               />
             </Box>
             <Box style={{ flex: 1 }}>
-              <Label> Equipments</Label>
+              <Label > Equipments</Label>
 
               <Select
                 isMulti
@@ -776,10 +886,10 @@ const CreateWorkout = () => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -824,8 +934,9 @@ const CreateWorkout = () => {
             style={{ width: "100%" }}
           >
           <Box style={{ flex: 1 }}>
-    <Label htmlFor="difficultyLevel">Difficulty Level</Label>
+    <Label htmlFor="difficultyLevel" isRequired>Difficulty Level</Label>
     <Select
+    required
       name="difficultyLevel"
       value={
         workoutForm.difficultyLevel
@@ -851,10 +962,10 @@ const CreateWorkout = () => {
         control: (baseStyles, state) => ({
           ...baseStyles,
           backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-          borderColor: state.isFocused ? "#007BFF" : "#444",
-          boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+          boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
           "&:hover": {
-            borderColor: state.isFocused ? "#007BFF" : "#666",
+            borderColor: state.isFocused ? "#6A4CE3" : "#666",
           },
         }),
         menu: (baseStyles) => ({
@@ -883,10 +994,11 @@ const CreateWorkout = () => {
     />
   </Box>
             <Box style={{ flex: 1 }}>
-         <Label htmlFor="benefits"> Benefits
+         <Label htmlFor="benefits" isRequired> Benefits
          </Label>
               
               <TextField.Root
+              required
                 type="text"
                 name="benefits"
                 value={workoutForm.benefits}
@@ -902,10 +1014,11 @@ const CreateWorkout = () => {
       style={{ width: "100%" }}
     >
         <Box style={{ flex: 1 }}>
-        <Label > Author </Label>
+        <Label isRequired> Author </Label>
       
               
-              <Select
+              {/* <Select
+              required
                 value={workoutForm.author}
                 onChange={(selectedOption) =>
                   handleSelectChange("author", selectedOption)
@@ -916,10 +1029,10 @@ const CreateWorkout = () => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#444",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -954,6 +1067,16 @@ const CreateWorkout = () => {
                     color: appearance === "dark" ? "#fff" : "#000",
                   }),
                 }}
+              /> */}
+
+              <TextField.Root
+              required
+                type="text"
+                name="author"
+                value={currentUser}
+                onChange={handleInputChange}
+                placeholder="Author"
+                readOnly
               />
             </Box>
             <Box style={{ flex: 1 }}>
@@ -961,6 +1084,7 @@ const CreateWorkout = () => {
     Visibility Status
   </Label>
   <Select
+  required
     name="visibility"
     options={visibilityStatusOptions}
     value={
@@ -981,10 +1105,10 @@ const CreateWorkout = () => {
       control: (baseStyles, state) => ({
         ...baseStyles,
         backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-        borderColor: state.isFocused ? "#007BFF" : "#444",
-        boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+        borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+        boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
         "&:hover": {
-          borderColor: state.isFocused ? "#007BFF" : "#666",
+          borderColor: state.isFocused ? "#6A4CE3" : "#666",
         },
       }),
       menu: (baseStyles) => ({
@@ -1021,27 +1145,31 @@ const CreateWorkout = () => {
       style={{ width: "100%" }}
     >
          <Box style={{ flex: 1 }}>
-         <Label htmlFor="creationDate">Creation Date</Label>
+         <Label htmlFor="creationDate" isRequired>Creation Date</Label>
             
               
               <input
+              required
                 type="date"
                 name="creationDate"
                 value={workoutForm.creationDate}
                 onChange={handleInputChange}
                 placeholder="Creation Date"
-                className="border border-[#484e54] px-[1px] py-[7px] rounded-md w-full"
+                className="border border-[#c1c1c1] px-[1px] py-[7px] rounded-md w-full"
               />
             
             </Box>
             <Box style={{ flex: 1 }}>
-            <Label htmlFor="overallRating" > Overall Rating</Label>
+            <Label htmlFor="overallRating" > Overall Rating (Out of 5)</Label>
               <TextField.Root
                 type="number"
                 name="overallRating"
                 value={workoutForm.overallRating}
                 onChange={handleInputChange}
                 placeholder="Overall Rating"
+                min={0}
+                max={5}
+                step={1}
               />
         
             </Box>
@@ -1051,7 +1179,7 @@ const CreateWorkout = () => {
             type="submit"
             className="px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900"
           >
-            Save
+            Save & Submit
           </button>
         </form>
       </div>

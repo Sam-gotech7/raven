@@ -1,12 +1,13 @@
 import { useContext, useState,useEffect } from "react"
 import { FrappeConfig, FrappeContext, FrappeError ,useFrappeGetDoc,useFrappeAuth,useFrappeFileUpload} from "frappe-react-sdk"
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { PageHeader } from '../layout/Heading/PageHeader';
 import { Label, ErrorText, HelperText } from "@/components/common/Form";
 import { Label as RadixLabel } from "@radix-ui/react-label";
 import { Stack, HStack } from "@/components/layout/Stack";
 import { useIsDesktop, useIsMobile } from "@/hooks/useMediaQuery";
-import { Heading, TextField, TextArea, Box, Flex } from "@radix-ui/themes";
+import { DIALOG_CONTENT_CLASS } from "@/utils/layout/dialog"
+import { Heading, TextField,Dialog,TextArea, Box, Flex,Radio,Button } from "@radix-ui/themes";
 import { BiChevronLeft } from 'react-icons/bi';
 import { useTheme } from '../../ThemeProvider'; // Import the theme context
 import { MdDelete } from "react-icons/md";
@@ -14,9 +15,11 @@ import Select from 'react-select';
 import { toast } from 'sonner'
 
 const EditWorkout = () => {
+  const [isVideoUpload, setIsVideoUpload] = useState(true);
   const { id } = useParams();
   const formattedId = id?.replace(/-/g, " ");
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const navigate=useNavigate()
     const { appearance } = useTheme(); // Get the current theme (light or dark)
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(2); // Set the number of items per page
@@ -30,6 +33,7 @@ console.log('data', newWorkoutData)
         { value: "Public", label: "Public" },
       ];
     const [companyOptions, setCompanyOptions] = useState([]); 
+    const [isLoading,setIsLoading]=useState(false);
     const [gymEquipmentOptions, setGymEquipmentOptions] = useState([]); 
     const [authorOptions, setAuthorOptions] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
@@ -53,6 +57,75 @@ console.log('data', newWorkoutData)
           });
         }
       };
+
+
+      const [exerciseList, setExerciseList] = useState(
+        newWorkoutData?.exercise_list?.map((exercise:any) => ({
+          exerciseName: exercise.exercise_name || '',
+          sets: exercise.sets || '',
+          reps: exercise.reps || '',
+          weight: exercise.weight || '',
+          rest: exercise.rest || '',
+          thumbnail: exercise.thumbnail || null,
+          supportVideo: exercise.support_video || null,
+        })) || []
+      );
+
+
+      
+      useEffect(() => {
+        if (newWorkoutData) {
+          setWorkoutForm((prevForm) => ({
+            ...prevForm,
+            workoutName: newWorkoutData.workout_name || "",
+            company: newWorkoutData.company
+              ? { label: newWorkoutData.company, value: newWorkoutData.company }
+              : null,
+            category: newWorkoutData.category
+              ? { label: newWorkoutData.category, value: newWorkoutData.category }
+              : null,
+            description: newWorkoutData.description || "",
+            duration: newWorkoutData.duration || "",
+            targetedMuscleGroup: newWorkoutData.targeted_muscle_group?.map((muscle) => ({
+              label: muscle.muscle,
+              value: muscle.muscle,
+            })) || [],
+            equipments: newWorkoutData.equipments?.map((equipment) => ({
+              label: equipment.equipment_name,
+              value: equipment.equipment_name,
+            })) || [],
+            difficultyLevel: newWorkoutData.difficulty_level || "",
+            notes: newWorkoutData.notesinstructions || "",
+            benefits: newWorkoutData.benifites || "",
+            author: newWorkoutData.creater__author
+              ? { label: newWorkoutData.creater_author, value: newWorkoutData.creater_author }
+              : null,
+            visibility: newWorkoutData.visibility || "Private",
+            creationDate: newWorkoutData.creation_date || new Date().toLocaleDateString(),
+            overallRating: newWorkoutData.overall_rating || "",
+          }));
+          setExerciseList(
+            newWorkoutData.exercise_list?.map((exercise: any) => ({
+              
+              exerciseName: exercise.exercise_name || "",
+              sets: exercise.sets || "",
+              reps: exercise.reps || "",
+              weight: exercise.weight || "",
+              rest: exercise.rest || "",
+              thumbnail: exercise.thumbnail || null,
+              supportVideo: exercise.support_video || null,
+            })) || []
+
+            );
+          setIsLoading(false);
+        }
+      }, [newWorkoutData])
+
+
+
+
+
+
  
 
     const [workoutForm, setWorkoutForm] = useState({
@@ -78,23 +151,38 @@ console.log('data', newWorkoutData)
         overallRating: newWorkoutData?.overall_rating || '',
     });
 
-    if (!newWorkoutData){
+    if (isLoading){
       return <p>Loading</p>
     }
 
     console.log(workoutForm?.company)
-    const [exerciseList, setExerciseList] = useState(
-      newWorkoutData?.exercise_list?.map((exercise:any) => ({
-        exerciseName: exercise.exercise_name || '',
-        sets: exercise.sets || '',
-        reps: exercise.reps || '',
-        weight: exercise.weight || '',
-        rest: exercise.rest || '',
-        thumbnail: exercise.thumbnail || null,
-        supportVideo: exercise.support_video || null,
-      })) || []
-    );
     
+    
+
+
+    const handleLinkChange=(index:number,e: any)=>{
+      const toastId = toast.loading("uploading Link");
+      const updatedExerciseList = [...exerciseList];
+      
+      const updatedFields = {
+                    file_url:e?.nativeEvent?.data,
+                      is_private: false,
+                      doctype: "Workout Master",
+                      docname: workoutForm.workoutName,
+                      folder:"Home",
+                      fieldname:"support_link"
+                  };
+      
+                        call
+                        .post("upload_file",updatedFields)
+                        .then((r) =>{
+                        updatedExerciseList[index]["supportVideo"] =r.message.file_url;
+                        setExerciseList(updatedExerciseList);
+                          toast.dismiss(toastId);
+                          reset();
+                        })
+                        .catch((error) => console.error(error));
+      }
 
     // Handle workout form changes
     const handleInputChange = (e: any) => {
@@ -112,9 +200,8 @@ console.log('data', newWorkoutData)
 
 
 const handleFileChange = (index: number, e: any) => {
-    const { name, files } = e.target;
+    const { name,files } = e.target;
     const updatedExerciseList = [...exerciseList];
-    
     if (name === "thumbnail") {
        const toastId = toast.loading('uploading thubnail');
         const file = files[0];
@@ -208,30 +295,34 @@ const handleFileChange = (index: number, e: any) => {
                     "support_video": exer?.supportVideo
          }));
          const data = {
-            "docstatus": 0,
-            "doctype": "Workout Master",
-            "name": randomName,
-            "owner": currentUser,
-            "targeted_muscle_group": targetedMuscles,
-            "company": workoutForm?.company?.value,
-            "equipments": selectedEquipments,
-            "difficulty_level": workoutForm?.difficultyLevel,
             "exercise_list": selectedExerciseList ,
-            "visibility": workoutForm?.visibility,
-            "workout_name":workoutForm?.workoutName,
-            "category": workoutForm?.category?.value,
-            "duration": workoutForm?.duration,
-            "description": workoutForm?.description,
-            "notesinstructions": workoutForm?.notes,
-            "benifites": workoutForm?.benefits,
-            "creater__author": workoutForm?.author?.value,
-            "creation_date": workoutForm?.creationDate,
-            "overall_rating": workoutForm?.overallRating
         }
+        //  const data = {
+        //     "docstatus": 1,
+        //     "doctype": "Workout Master",
+        //     "name": randomName,
+        //     "owner": currentUser,
+        //     "targeted_muscle_group": targetedMuscles,
+        //     "company": workoutForm?.company?.value,
+        //     "equipments": selectedEquipments,
+        //     "difficulty_level": workoutForm?.difficultyLevel,
+        //     "exercise_list": selectedExerciseList ,
+        //     "visibility": workoutForm?.visibility,
+        //     "workout_name":workoutForm?.workoutName,
+        //     "category": workoutForm?.category?.value,
+        //     "duration": workoutForm?.duration,
+        //     "description": workoutForm?.description,
+        //     "notesinstructions": workoutForm?.notes,
+        //     "benifites": workoutForm?.benefits,
+        //     "creater__author": workoutForm?.author?.value || currentUser,
+        //     "creation_date": workoutForm?.creationDate,
+        //     "overall_rating": workoutForm?.overallRating
+        // }
         console.log(data)
-        db.createDoc('Workout Master', data)
+        db.updateDoc('Workout Master',workoutForm?.workoutName, data)
             .then((doc) => {
                 toast.success("Workout Add successfully")
+                navigate('/channel/workout');
             }    )
             .catch((error) => console.error(error));
     
@@ -331,12 +422,14 @@ const handleFileChange = (index: number, e: any) => {
                                 value={workoutForm.workoutName}
                                 onChange={handleInputChange}
                                 placeholder="Workout Name"
+                                readOnly
                             />
                         </Box>
                         <Box style={{ flex: 1 }}>
                         <Label>Company</Label>
                             
                             <Select
+                                isDisabled
                                 value={workoutForm.company}
                                 onChange={(selectedOption) => handleSelectChange("company", selectedOption)}
                                 options={companyOptions}
@@ -345,10 +438,10 @@ const handleFileChange = (index: number, e: any) => {
                                     control: (baseStyles, state) => ({
                                         ...baseStyles,
                                         backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
-                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
-                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        borderColor: state.isFocused ? '#6A4CE3' : '#c1c1c1', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #6A4CE3' : 'none',
                                         '&:hover': {
-                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                            borderColor: state.isFocused ? '#6A4CE3' : '#666',
                                         },
                                     }),
                                     menu: (baseStyles) => ({
@@ -383,6 +476,7 @@ const handleFileChange = (index: number, e: any) => {
                     <Label>Category</Label>
                             
                             <Select
+                              isDisabled
                                 value={workoutForm.category}
                                 onChange={(selectedOption) => handleSelectChange("category", selectedOption)}
                                 options={categoryOptions}
@@ -391,10 +485,10 @@ const handleFileChange = (index: number, e: any) => {
                                     control: (baseStyles, state) => ({
                                         ...baseStyles,
                                         backgroundColor: appearance === 'dark' ? '#17191A' : '#fff',
-                                        borderColor: state.isFocused ? '#007BFF' : '#444', 
-                                        boxShadow: state.isFocused ? '0 0 0 1px #007BFF' : 'none',
+                                        borderColor: state.isFocused ? '#6A4CE3' : '#c1c1c1', 
+                                        boxShadow: state.isFocused ? '0 0 0 1px #6A4CE3' : 'none',
                                         '&:hover': {
-                                            borderColor: state.isFocused ? '#007BFF' : '#666',
+                                            borderColor: state.isFocused ? '#6A4CE3' : '#666',
                                         },
                                     }),
                                     menu: (baseStyles) => ({
@@ -421,7 +515,8 @@ const handleFileChange = (index: number, e: any) => {
                         <Box style={{ flex: 1 }}>
                         <Label>Duration (mins)</Label>            
                             <TextField.Root
-                                type="text"
+                              readOnly
+                                type="number"
                                 name="duration"
                                 value={workoutForm.duration}
                                 onChange={handleInputChange}
@@ -439,6 +534,7 @@ const handleFileChange = (index: number, e: any) => {
                   <Label>Description</Label>
                         
                         <TextArea
+                        readOnly
                             name="description"
                             value={workoutForm.description}
                             onChange={handleInputChange}
@@ -452,6 +548,7 @@ const handleFileChange = (index: number, e: any) => {
                     <Label>Notes/Instructions</Label>
                         
                         <TextArea
+                        readOnly
                             name="notes"
                             value={workoutForm.notes}
                             onChange={handleInputChange}
@@ -490,12 +587,12 @@ const handleFileChange = (index: number, e: any) => {
                           ...baseStyles,
                           backgroundColor:
                             appearance === "dark" ? "#17191A" : "#fff",
-                          borderColor: state.isFocused ? "#007BFF" : "#444",
+                          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
                           boxShadow: state.isFocused
-                            ? "0 0 0 1px #007BFF"
+                            ? "0 0 0 1px #6A4CE3"
                             : "none",
                           "&:hover": {
-                            borderColor: state.isFocused ? "#007BFF" : "#666",
+                            borderColor: state.isFocused ? "#6A4CE3" : "#666",
                           },
                         }),
                         menu: (baseStyles) => ({
@@ -529,7 +626,7 @@ const handleFileChange = (index: number, e: any) => {
                     <Label htmlFor="sets">Sets</Label>
 
                     <TextField.Root
-                      type="text"
+                      type="number"
                       name="sets"
                       value={exercise.sets}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -550,7 +647,7 @@ const handleFileChange = (index: number, e: any) => {
                     </Label>
 
                     <TextField.Root
-                      type="text"
+                      type="number"
                       name="reps"
                       value={exercise.reps}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -564,7 +661,7 @@ const handleFileChange = (index: number, e: any) => {
                     </Label>
 
                     <TextField.Root
-                      type="text"
+                      type="number"
                       name="weight"
                       value={exercise.weight}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -585,7 +682,7 @@ const handleFileChange = (index: number, e: any) => {
                     </Label>
 
                     <TextField.Root
-                      type="text"
+                      type="number"
                       name="rest"
                       value={exercise.rest}
                       onChange={(e) => handleExerciseChange(index, e)}
@@ -598,12 +695,34 @@ const handleFileChange = (index: number, e: any) => {
                       Thumbnail
                     </Label>
 
+
                     <input
+                    type="file"
+                    name="thumbnail"
+                    accept="image/*"
+                    onChange={(e) => {handleFileChange(index, e)}}
+                    style={{ display: 'none' }}
+                    id={`fileInput-${index}`} 
+                  />
+                  <input
+                    type="text"
+                    readOnly
+                    className="border border-[#c1c1c1] px-[10px] py-[7px] rounded-md w-full cursor-pointer"
+                    value={exerciseList[index]["thumbnail"]}
+                    placeholder="No file selected"
+                    onClick={() => document.getElementById(`fileInput-${index}`)?.click()} 
+                  />
+
+                      
+                    {/* <input
+                    required
                       type="file"
                       name="thumbnail"
+                      // value={exerciseList[index]["thumbnail"]}
                       accept="image/*"
+                      className="border border-[#484E54] px-[10px] py-[7px] rounded-full w-full"
                       onChange={(e) => handleFileChange(index, e)}
-                    />
+                    /> */}
                   </Box>
                 </Stack>
 
@@ -613,15 +732,59 @@ const handleFileChange = (index: number, e: any) => {
                   style={{ width: "100%" }}
                 >
                   <Box style={{ flex: 1 }}>
-                    <Label htmlFor="supportVideo"> Support Video</Label>
+                    <Label htmlFor="supportVideo" isRequired> Support Video</Label>
 
-                    <input
-                      type="file"
-                      name="supportVideo"
-                      accept="video/*"
-                      onChange={(e) => handleFileChange(index, e)}
-                      className="border border-[#484E54] px-[1px] py-[7px] rounded-md w-full"
-                    />
+                    <Dialog.Root>
+                <Dialog.Trigger>
+                        <button
+                      type="button"
+                      className="text-blue-500 cu px-3 py-2 bg-transparent border border-blue-900 rounded-lg hover:text-blue-700"
+                    >
+                      {exerciseList[index]["supportVideo"] ? `${exerciseList[index]["supportVideo"].substr(7,20)}...` : `Upload Support Video`}
+                    </button>
+                </Dialog.Trigger>
+
+                <Dialog.Content maxWidth="450px">
+                      <Dialog.Title>Upload Video or Video Link</Dialog.Title>
+                      {/* <Dialog.Description size="2" mb="4">
+                      </Dialog.Description> */}
+                      <Flex gap="2">
+                          <Radio variant="surface" name="surface" value="1" defaultChecked onChange={()=>setIsVideoUpload(true)}/>
+                          <label>Upload Video</label>
+                          <Radio variant="surface" name="surface" value="2" onChange={()=>setIsVideoUpload(false)}/>
+                          <label>Upload Video Link</label>
+	                    </Flex>
+                      <Flex direction="column" gap="3" m="4">
+                      {!isVideoUpload?(
+                      <TextField.Root
+                            required
+                            type="text"
+                            name="supportLink"
+                            onChange={(e) => {e?.nativeEvent?.data && handleLinkChange(index,e);}}
+                            placeholder="Enter Video Link"
+                          />
+                          ):
+                          (
+                            <input
+                              required
+                              type="file"
+                              name="supportVideo"
+                              accept="video/*"
+                              onChange={(e) => handleFileChange(index, e)}
+                              className="border border-[#484E54] px-[10px] py-[7px] rounded-full w-full"
+                            />
+                          )
+                      }
+
+                      
+                      </Flex>
+                    {exerciseList[index]["supportVideo"] && <Dialog.Close>
+                        <Button>Save</Button>
+                    </Dialog.Close>}
+                </Dialog.Content>
+
+
+      </Dialog.Root>
                   </Box>
                   <Box style={{ flex: 1 }}>
                     <button
@@ -656,6 +819,7 @@ const handleFileChange = (index: number, e: any) => {
 
               <Select
                 isMulti
+                isDisabled
                 value={workoutForm.targetedMuscleGroup}
                 onChange={(selectedOptions) =>
                   handleMultiSelectChange(
@@ -669,10 +833,10 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -724,10 +888,10 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -774,6 +938,7 @@ const handleFileChange = (index: number, e: any) => {
           <Box style={{ flex: 1 }}>
     <Label htmlFor="difficultyLevel">Difficulty Level</Label>
     <Select
+    isDisabled
       name="difficultyLevel"
       value={
         workoutForm.difficultyLevel
@@ -799,10 +964,10 @@ const handleFileChange = (index: number, e: any) => {
         control: (baseStyles, state) => ({
           ...baseStyles,
           backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-          borderColor: state.isFocused ? "#007BFF" : "#444",
-          boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+          borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+          boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
           "&:hover": {
-            borderColor: state.isFocused ? "#007BFF" : "#666",
+            borderColor: state.isFocused ? "#6A4CE3" : "#666",
           },
         }),
         menu: (baseStyles) => ({
@@ -835,6 +1000,7 @@ const handleFileChange = (index: number, e: any) => {
          </Label>
               
               <TextField.Root
+              readOnly
                 type="text"
                 name="benefits"
                 value={workoutForm.benefits}
@@ -853,7 +1019,7 @@ const handleFileChange = (index: number, e: any) => {
         <Label > Author </Label>
       
               
-              <Select
+              {/* <Select
                 value={workoutForm.author}
                 onChange={(selectedOption) =>
                   handleSelectChange("author", selectedOption)
@@ -864,10 +1030,10 @@ const handleFileChange = (index: number, e: any) => {
                   control: (baseStyles, state) => ({
                     ...baseStyles,
                     backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor: state.isFocused ? "#007BFF" : "#444",
-                    boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+                    borderColor: state.isFocused ? "#6A4CE3" : "#444",
+                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
                     "&:hover": {
-                      borderColor: state.isFocused ? "#007BFF" : "#666",
+                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
                     },
                   }),
                   menu: (baseStyles) => ({
@@ -902,6 +1068,16 @@ const handleFileChange = (index: number, e: any) => {
                     color: appearance === "dark" ? "#fff" : "#000",
                   }),
                 }}
+              /> */}
+
+                <TextField.Root
+              required
+                type="text"
+                name="author"
+                value={currentUser?currentUser:""}
+                onChange={handleInputChange}
+                placeholder="Author"
+                readOnly
               />
             </Box>
             <Box style={{ flex: 1 }}>
@@ -909,6 +1085,7 @@ const handleFileChange = (index: number, e: any) => {
     Visibility Status
   </Label>
   <Select
+    isDisabled
     name="visibility"
     options={visibilityStatusOptions}
     value={
@@ -929,10 +1106,10 @@ const handleFileChange = (index: number, e: any) => {
       control: (baseStyles, state) => ({
         ...baseStyles,
         backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-        borderColor: state.isFocused ? "#007BFF" : "#444",
-        boxShadow: state.isFocused ? "0 0 0 1px #007BFF" : "none",
+        borderColor: state.isFocused ? "#6A4CE3" : "#c1c1c1",
+        boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
         "&:hover": {
-          borderColor: state.isFocused ? "#007BFF" : "#666",
+          borderColor: state.isFocused ? "#6A4CE3" : "#666",
         },
       }),
       menu: (baseStyles) => ({
@@ -973,18 +1150,20 @@ const handleFileChange = (index: number, e: any) => {
             
               
               <input
+              readOnly
                 type="date"
                 name="creationDate"
                 value={workoutForm.creationDate}
                 onChange={handleInputChange}
                 placeholder="Creation Date"
-                className="border border-[#484e54] px-[1px] py-[7px] rounded-md w-full"
+                className="border border-[#c1c1c1] px-[1px] py-[7px] rounded-md w-full"
               />
             
             </Box>
             <Box style={{ flex: 1 }}>
-            <Label htmlFor="overallRating" > Overall Rating</Label>
+            <Label htmlFor="overallRating" > Overall Rating (Out of 5)</Label>
               <TextField.Root
+              readOnly
                 type="number"
                 name="overallRating"
                 value={workoutForm.overallRating}
@@ -994,7 +1173,7 @@ const handleFileChange = (index: number, e: any) => {
         
             </Box>
           </Stack>
-                    <button type='submit' className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900' >Save</button>
+                    <button type='submit' className='px-7 cursor-pointer hover:scale-105 text-lg font-semibold py-2 bg-transparent border rounded-lg border-blue-900'>Update</button>
                 </form>
             </div>
         </>

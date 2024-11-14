@@ -4,7 +4,7 @@ import { Badge, Box, Checkbox, Flex, Table, Tooltip } from "@radix-ui/themes"
 import { UserAvatar } from "@/components/common/UserAvatar"
 import { StandardDate } from "@/utils/dateConversions"
 import { FiAlertTriangle, FiEdit, FiTrash } from "react-icons/fi"
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface UsersTableProps {
     data: User[],
@@ -79,7 +79,7 @@ export const UsersTable = ({ data, selected, setSelected, defaultSelected }: Use
                         <Table.Row key={index}>
                             <Table.RowHeaderCell><Checkbox checked={isSelected} disabled={defaultSelected.includes(workout.name)} onCheckedChange={() => onCheckboxChange(workout.name)} /></Table.RowHeaderCell>
                             <Table.Cell>
-                               {workout.name}
+                                <Link to={`/channel/workout/edit/${workout.name.replace(/\s+/g, '-')}`}>{workout.name}</Link>
                             </Table.Cell>
 
                             <Table.Cell>{workout.workout_name}</Table.Cell>
