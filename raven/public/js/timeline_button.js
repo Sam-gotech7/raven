@@ -164,7 +164,7 @@ $(document).on('app_ready', function () {
                 let dialog;
                 if (!dialog) {
                   dialog = new frappe.ui.Dialog({
-                    title: __('Send a redeeChat'),
+                    title: __('Send a Redee Chat'),
                     fields: [
                       {
                         fieldname: 'type',
@@ -319,7 +319,7 @@ $(document).on('app_ready', function () {
             // check the button is not already added by checking the class name 'send-raven-button'
 
             timeline.add_action_button(
-              __('Send a redeeChat'),
+              __('Send a Redee Chat'),
               send_raven,
               'share',
               'btn-secondary send-raven-button'

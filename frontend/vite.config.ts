@@ -16,9 +16,9 @@ export default defineConfig(({ command, mode }) => {
 			injectRegister: null,
 			outDir: '../raven/public/raven',
 			manifest: {
-				name: "redeeChat",
+				name: "Redee Chat",
 				start_url: `/${env.VITE_BASE_NAME}`,
-				short_name: "redeeChat",
+				short_name: "Redee Chat",
 				description: "Simple, work messaging tool.",
 				display: "standalone",
 				"icons": [

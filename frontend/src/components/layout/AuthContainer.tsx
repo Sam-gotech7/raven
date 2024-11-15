@@ -18,7 +18,7 @@ const AuthContainer = ({ children, ...props }: PropsWithChildren) => {
 
                                 <Link to="/" tabIndex={-1}>
                                     <Flex justify="center">
-                                        <Text as='span' size='9' className='cal-sans'>redeeChat</Text>
+                                        <Text as='span' size='9' className='cal-sans'>Redee Chat</Text>
                                     </Flex>
                                 </Link>
 

@@ -51,7 +51,7 @@ export const UserListProvider = ({ children }: PropsWithChildren) => {
         return <Flex align='center' justify='center' px='4' mx='auto' className="w-[50vw] h-screen">
             <ErrorBanner error={usersError}>
                 <Box py='2'>
-                    <Link href={'/app/raven-user'}>View redeeChat Users</Link>
+                    <Link href={'/app/raven-user'}>View Redee Chat Users</Link>
                 </Box>
             </ErrorBanner>
         </Flex>

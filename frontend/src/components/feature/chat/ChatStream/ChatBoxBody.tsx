@@ -21,8 +21,8 @@ const COOL_PLACEHOLDERS = [
     "Delivering messages atop dragons 🐉 is available on a chargeable basis.",
     "Note 🚨: Service beyond the wall is currently disrupted due to bad weather.",
     "Pigeons just have better brand recognition tbh 🤷🏻",
-    "redeeChat double up as spies. Eyes everywhere 👀",
-    "redeeChat do not 'slack' off. See what we did there? 😉",
+    "Redee Chat double up as spies. Eyes everywhere 👀",
+    "Redee Chat do not 'slack' off. See what we did there? 😉",
     "Were you expecting a funny placeholder? 😂",
     "Want to know who writes these placeholders? 🤔. No one.",
     "Type a message..."
