@@ -165,7 +165,7 @@ console.log('data', newWorkoutData)
       const updatedExerciseList = [...exerciseList];
       
       const updatedFields = {
-                    file_url:e?.nativeEvent?.data,
+                    file_url:e.target.value,
                       is_private: false,
                       doctype: "Workout Master",
                       docname: workoutForm.workoutName,
@@ -321,7 +321,7 @@ const handleFileChange = (index: number, e: any) => {
         console.log(data)
         db.updateDoc('Workout Master',workoutForm?.workoutName, data)
             .then((doc) => {
-                toast.success("Workout Add successfully")
+                toast.success("Workout Updated successfully")
                 navigate('/channel/workout');
             }    )
             .catch((error) => console.error(error));
@@ -760,7 +760,7 @@ const handleFileChange = (index: number, e: any) => {
                             required
                             type="text"
                             name="supportLink"
-                            onChange={(e) => {e?.nativeEvent?.data && handleLinkChange(index,e);}}
+                            onChange={(e) => {handleLinkChange(index,e)}}
                             placeholder="Enter Video Link"
                           />
                           ):

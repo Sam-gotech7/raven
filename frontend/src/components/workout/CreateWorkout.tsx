@@ -131,6 +131,7 @@ const CreateWorkout = () => {
 
 
 const handleLinkChange=(index:number,e: any)=>{
+  console.log(e)
 // const toastId = toast.loading("uploading Link");
 const updatedExerciseList = [...exerciseList];
 
@@ -153,7 +154,7 @@ const updatedExerciseList = [...exerciseList];
                   // })
                   // .catch((error) => console.error(error));
 
-                  updatedExerciseList[index]["supportVideo"] =e?.nativeEvent?.data;
+                  updatedExerciseList[index]["supportVideo"] = e.target.value;
                   setExerciseList(updatedExerciseList)
                   console.log(exerciseList)
                   // toast.dismiss(toastId);
@@ -161,6 +162,7 @@ const updatedExerciseList = [...exerciseList];
 }
 
 
+console.log(exerciseList)
 const handleFileChange = (index: number, e: any) => {
   const { name, files } = e.target;
   const updatedExerciseList = [...exerciseList];
@@ -763,7 +765,7 @@ const handleFileChange = (index: number, e: any) => {
                             required
                             type="text"
                             name="supportLink"
-                            onChange={(e) => {e?.nativeEvent?.data && handleLinkChange(index,e);}}
+                            onChange={(e) => {handleLinkChange(index,e)}}
                             placeholder="Enter Video Link"
                           />
                           ):
