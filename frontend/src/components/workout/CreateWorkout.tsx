@@ -5,6 +5,7 @@ import {
   FrappeError,
   useFrappeAuth,
   useFrappeFileUpload,
+  FrappeProvider
 } from "frappe-react-sdk";
 import { AlertDialog, Box, Dialog, Flex,Button, IconButton, Tooltip } from "@radix-ui/themes"
 import { DIALOG_CONTENT_CLASS } from "@/utils/layout/dialog"
@@ -33,7 +34,7 @@ const CreateWorkout = () => {
   const isMobile = useIsMobile();
   const { call, db } = useContext(FrappeContext) as FrappeConfig;
   const { currentUser } = useFrappeAuth();
-  const [companyOptions, setCompanyOptions] = useState([]);
+  const [companyOptions, setCompanyOptions] = useState();
   const [gymEquipmentOptions, setGymEquipmentOptions] = useState([]);
   const [authorOptions, setAuthorOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -46,14 +47,16 @@ const CreateWorkout = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    fetchCompany();
+    fetchAuthor();
     fetchWorkoutCategory();
     fetchTargetedMuscles();
     fetchGymEquipmentOptions();
-    fetchAuthor();
     fetchExerciseList();
-
   }, []);
+
+  useEffect(()=>{
+    if(currentUser) fetchCompany();
+  },[currentUser])
 
   const openModal = (e) => {
     e.preventDefault();
@@ -135,24 +138,6 @@ const handleLinkChange=(index:number,e: any)=>{
 // const toastId = toast.loading("uploading Link");
 const updatedExerciseList = [...exerciseList];
 
-// const updatedFields = {
-//               file_url:e?.nativeEvent?.data,
-//                 is_private: false,
-//                 // doctype: "Workout Master",
-//                 // docname: workoutForm.workoutName,
-//                 folder:"Home",
-//                 fieldname:"support_link"
-//             };
-
-                  // call
-                  // .post("upload_file",updatedFields)
-                  // .then((r) =>{
-                  // updatedExerciseList[index]["supportVideo"] =r.message.file_url;
-                  // setExerciseList(updatedExerciseList);
-                  //   toast.dismiss(toastId);
-                  //   reset();
-                  // })
-                  // .catch((error) => console.error(error));
 
                   updatedExerciseList[index]["supportVideo"] = e.target.value;
                   setExerciseList(updatedExerciseList)
@@ -161,8 +146,6 @@ const updatedExerciseList = [...exerciseList];
                   reset();
 }
 
-
-console.log(exerciseList)
 const handleFileChange = (index: number, e: any) => {
   const { name, files } = e.target;
   const updatedExerciseList = [...exerciseList];
@@ -296,21 +279,23 @@ const handleFileChange = (index: number, e: any) => {
       .catch((error) => console.error(error));
   };
 
-  // Fetch data for options
   const fetchCompany = async () => {
-    const searchParams = { doctype: "Company", txt: "" };
-    call
-      .get("frappe.desk.search.search_link", searchParams)
-      .then((result) =>
-        setCompanyOptions(
-          result.message.map((company: any) => ({
-            label: company.value,
-            value: company.value,
-          }))
-        )
-      )
-      .catch((error) => console.error(error));
+    const updatedFields = {
+      doctype: 'Instructor', // Fixing the single quote issue
+      filters: [['email', '=', currentUser]],
+      fieldname: 'company'
+    };
+
+    try {
+      const res = await call.post('frappe.client.get_value', updatedFields);
+      setCompanyOptions(res?.message?.company)
+    } catch (error) {
+      console.error('Error fetching instructor ID:', error);
+    }
   };
+
+
+  
 
   const fetchWorkoutCategory = async () => {
     const searchParamscategory = { doctype: "Workout Category", txt: "" };
@@ -432,48 +417,14 @@ const handleFileChange = (index: number, e: any) => {
             </Box>
             <Box style={{ flex: 1 }}>
               <Label isRequired>Company</Label>
-              <Select
-                required
-                value={workoutForm.company}
-                onChange={(selectedOption) =>
-                  handleSelectChange("company", selectedOption)
-                }
-                options={companyOptions}
-                placeholder="Select Company"
-                styles={{
-                  control: (baseStyles, state) => ({
-                    ...baseStyles,
-                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    borderColor:  "#484E54",
-                    boxShadow: state.isFocused ? "0 0 0 1px #6A4CE3" : "none",
-                    "&:hover": {
-                      borderColor: state.isFocused ? "#6A4CE3" : "#666",
-                    },
-                  }),
-                  menu: (baseStyles) => ({
-                    ...baseStyles,
-                    backgroundColor: appearance === "dark" ? "#17191A" : "#fff",
-                    color: appearance === "dark" ? "#fff" : "#000",
-                  }),
-                  option: (baseStyles, { isFocused }) => ({
-                    ...baseStyles,
-                    backgroundColor: isFocused
-                      ? appearance === "dark"
-                        ? "#555"
-                        : "#eee"
-                      : "transparent",
-                    color: appearance === "dark" ? "#fff" : "#000",
-                  }),
-                  singleValue: (baseStyles) => ({
-                    ...baseStyles,
-                    color: appearance === "dark" ? "#fff" : "#000",
-                  }),
-                  input: (baseStyles) => ({
-                    ...baseStyles,
-                    color: appearance === "dark" ? "#fff" : "#000",
-                  }),
-                }}
-              />
+              <TextField.Root
+              readOnly
+                    required
+                      type="text"
+                      name="company"
+                      value={companyOptions}
+                      placeholder="Company"
+                    />
             </Box>
           </Stack>
 

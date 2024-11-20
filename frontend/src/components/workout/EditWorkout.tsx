@@ -155,7 +155,6 @@ console.log('data', newWorkoutData)
       return <p>Loading</p>
     }
 
-    console.log(workoutForm?.company)
     
     
 
@@ -272,7 +271,7 @@ const handleFileChange = (index: number, e: any) => {
     };
     const SubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();  
-        console.log(workoutForm);
+        console.log("",workoutForm);
         console.log(exerciseList);
         const randomName = `new-workout-master-${generateRandomString()}`;
         const targetedMuscles = workoutForm?.targetedMuscleGroup?.map((muscle: any) => ({
@@ -428,7 +427,7 @@ const handleFileChange = (index: number, e: any) => {
                         <Box style={{ flex: 1 }}>
                         <Label>Company</Label>
                             
-                            <Select
+                            {/* <Select
                                 isDisabled
                                 value={workoutForm.company}
                                 onChange={(selectedOption) => handleSelectChange("company", selectedOption)}
@@ -462,8 +461,15 @@ const handleFileChange = (index: number, e: any) => {
                                         ...baseStyles,
                                         color: appearance === 'dark' ? '#fff' : '#000',
                                     }),
-                                }}
-                            />
+                                }} 
+                            />*/}
+                            <TextField.Root
+                              readOnly
+                              type="text"
+                              name="company"
+                              value={workoutForm?.company?.value}
+                              placeholder="Company"
+                    />
                         </Box>
                     </Stack>
 
